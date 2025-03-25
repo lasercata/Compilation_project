@@ -1,0 +1,31 @@
+//----------------------------------------------------
+// Programme correct
+//   
+//
+//    Boucles imbriqu es
+//   doit afficher 4 fois : 
+//>1
+//>2
+//>3
+//>4
+//
+//------------------------------------------------------
+procedure pp is
+  i,j:integer;
+begin
+  i:=1;
+  //Invariant :
+    //on a affich  i-1 fois 1, 2, 3, 4
+    //1<=i<=5
+  while i/=5 loop
+    j:=1;
+    //Invariant
+      //on a affich  1, ..j-1
+      //1<=j<=5
+    while j/=5 loop
+      put(j);
+      j:=j+1
+    end ;
+    i:=i+1
+  end
+end.

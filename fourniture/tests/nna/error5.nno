@@ -1,0 +1,20 @@
+//-------------------------------------------------
+//  Programme incorrect
+//   M. Guyomard
+//
+// condition incorrecte dans un while
+//-------------------------------------------------
+
+
+procedure e is
+  val: integer;
+begin
+  val:=12;
+  while val+1 loop      //mess. erreur attendu ici
+    val:=val+1
+  end
+end.
+
+
+
+

@@ -1,0 +1,13 @@
+//-------------------------------------------------
+//  Programme incorrect
+//    M. Guyomard
+//
+// affectation : typage incorrect
+//-------------------------------------------------
+
+
+procedure e is
+  val: integer;
+begin
+  val:=true  //mess. erreur attendu ici
+end.

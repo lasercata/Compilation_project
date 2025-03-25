@@ -1,0 +1,12 @@
+//----------------------------------------------------
+// Programme correct
+//
+//------------------------------------------------------
+procedure pp is
+  function double(v : in integer) return integer is
+  begin
+    return 2*v
+  end;
+begin
+  put(double(7))
+end.

@@ -1,0 +1,23 @@
+//-------------------------------------------------
+// Programm correct
+//   
+//
+//  Affiche le nombre de valeurs paires lues
+//  arrêt quand on a lu un zéro
+//-------------------------------------------------
+
+procedure pp is
+  i,som:integer;
+begin
+  som:=0;
+  get(i);
+  //Invariant :
+    //som est le nombre de valeurs paires lues
+  while i/=0 loop
+    if i-(i/2)*2=0 then
+      som:=som+1
+    end;
+    get(i)
+  end;
+  put(som)
+end.

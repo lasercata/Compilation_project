@@ -1,0 +1,18 @@
+//----------------------------------------------------
+// Programme correct
+// 
+//
+//    expression relationnelle  avec des bool ens
+//   doit afficher 
+//>1
+//------------------------------------------------------
+procedure pp is
+  b:boolean;
+begin
+  b:=true;
+  if b=false then   //
+    put(0)
+  else
+    put(1)
+  end
+end.

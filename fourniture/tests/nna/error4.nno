@@ -1,0 +1,18 @@
+//--------------------------------------------------
+//  Programme incorrect
+//    M. Guyomard
+//
+// condition incorrecte dans une alternative
+//--------------------------------------------------
+
+
+procedure e is
+  val: integer;
+begin
+  val:=12;
+  if  val+1 then   //mess. erreur attendu ici
+    val:=val+1
+  else
+    val:=45
+  end
+end.
