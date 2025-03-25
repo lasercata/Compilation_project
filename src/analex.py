@@ -195,7 +195,7 @@ class LexicalAnalyser(object):
         # @param lineIndex index of the line in the original text
         # @param line the lien of text to analyse
     def analyse_line(self, lineIndex, line):
-        space = re.compile("\s")
+        space = re.compile(r"\s")
         digit = re.compile("[0-9]")
         char = re.compile("[a-zA-Z]")
         beginColIndex = 0
