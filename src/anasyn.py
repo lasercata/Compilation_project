@@ -544,8 +544,8 @@ def main():
 
     if args.show_ident_table:
         print("------ IDENTIFIER TABLE ------")
-            #print(str(identifierTable))
-            print("------ END OF IDENTIFIER TABLE ------")
+        #print(str(identifierTable))
+        print("------ END OF IDENTIFIER TABLE ------")
 
 
     if outputFilename != "":
@@ -554,7 +554,7 @@ def main():
 
         except:
             print("Error: can\'t open output file!")
-                    return
+            return
 
     else:
         output_file = sys.stdout
