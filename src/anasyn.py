@@ -110,10 +110,10 @@ def declaOp(lexical_analyser: analex.LexicalAnalyser):
     '''
 
     if lexical_analyser.isKeyword("procedure"):
-        procedure(lexical_analyser: analex.LexicalAnalyser)
+        procedure(lexical_analyser)
 
     if lexical_analyser.isKeyword("function"):
-        fonction(lexical_analyser: analex.LexicalAnalyser)
+        fonction(lexical_analyser)
 
 def procedure(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -126,10 +126,10 @@ def procedure(lexical_analyser: analex.LexicalAnalyser):
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("Name of procedure : "+ident)
 
-    partieFormelle(lexical_analyser: analex.LexicalAnalyser)
+    partieFormelle(lexical_analyser)
 
     lexical_analyser.acceptKeyword("is")
-    corpsProc(lexical_analyser: analex.LexicalAnalyser)
+    corpsProc(lexical_analyser)
 
 
 def fonction(lexical_analyser: analex.LexicalAnalyser):
@@ -143,13 +143,13 @@ def fonction(lexical_analyser: analex.LexicalAnalyser):
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("Name of function : "+ident)
 
-    partieFormelle(lexical_analyser: analex.LexicalAnalyser)
+    partieFormelle(lexical_analyser)
 
     lexical_analyser.acceptKeyword("return")
-    nnpType(lexical_analyser: analex.LexicalAnalyser)
+    nnpType(lexical_analyser)
 
     lexical_analyser.acceptKeyword("is")
-    corpsFonct(lexical_analyser: analex.LexicalAnalyser)
+    corpsFonct(lexical_analyser)
 
 def corpsProc(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -159,10 +159,10 @@ def corpsProc(lexical_analyser: analex.LexicalAnalyser):
     '''
 
     if not lexical_analyser.isKeyword("begin"):
-        partieDeclaProc(lexical_analyser: analex.LexicalAnalyser)
+        partieDeclaProc(lexical_analyser)
 
     lexical_analyser.acceptKeyword("begin")
-    suiteInstr(lexical_analyser: analex.LexicalAnalyser)
+    suiteInstr(lexical_analyser)
     lexical_analyser.acceptKeyword("end")
 
 def corpsFonct(lexical_analyser: analex.LexicalAnalyser):
@@ -173,10 +173,10 @@ def corpsFonct(lexical_analyser: analex.LexicalAnalyser):
     '''
 
     if not lexical_analyser.isKeyword("begin"):
-        partieDeclaProc(lexical_analyser: analex.LexicalAnalyser)
+        partieDeclaProc(lexical_analyser)
 
     lexical_analyser.acceptKeyword("begin")
-    suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser)
+    suiteInstrNonVide(lexical_analyser)
     lexical_analyser.acceptKeyword("end")
 
 def partieFormelle(lexical_analyser: analex.LexicalAnalyser):
@@ -189,7 +189,7 @@ def partieFormelle(lexical_analyser: analex.LexicalAnalyser):
     lexical_analyser.acceptCharacter("(")
 
     if not lexical_analyser.isCharacter(")"):
-        listeSpecifFormelles(lexical_analyser: analex.LexicalAnalyser)
+        listeSpecifFormelles(lexical_analyser)
 
     lexical_analyser.acceptCharacter(")")
 
@@ -200,11 +200,11 @@ def listeSpecifFormelles(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    specif(lexical_analyser: analex.LexicalAnalyser)
+    specif(lexical_analyser)
 
     if not lexical_analyser.isCharacter(")"):
         lexical_analyser.acceptCharacter(";")
-        listeSpecifFormelles(lexical_analyser: analex.LexicalAnalyser)
+        listeSpecifFormelles(lexical_analyser)
 
 def specif(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -213,13 +213,13 @@ def specif(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    listeIdent(lexical_analyser: analex.LexicalAnalyser)
+    listeIdent(lexical_analyser)
     lexical_analyser.acceptCharacter(":")
 
     if lexical_analyser.isKeyword("in"):
-        mode(lexical_analyser: analex.LexicalAnalyser)
+        mode(lexical_analyser)
 
-    nnpType(lexical_analyser: analex.LexicalAnalyser)
+    nnpType(lexical_analyser)
 
 def mode(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -263,7 +263,7 @@ def partieDeclaProc(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    listeDeclaVar(lexical_analyser: analex.LexicalAnalyser)
+    listeDeclaVar(lexical_analyser)
 
 def listeDeclaVar(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -272,10 +272,10 @@ def listeDeclaVar(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    declaVar(lexical_analyser: analex.LexicalAnalyser)
+    declaVar(lexical_analyser)
 
     if lexical_analyser.isIdentifier():
-        listeDeclaVar(lexical_analyser: analex.LexicalAnalyser)
+        listeDeclaVar(lexical_analyser)
 
 def declaVar(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -284,10 +284,10 @@ def declaVar(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    listeIdent(lexical_analyser: analex.LexicalAnalyser)
+    listeIdent(lexical_analyser)
     lexical_analyser.acceptCharacter(":")
     logger.debug("now parsing type...")
-    nnpType(lexical_analyser: analex.LexicalAnalyser)
+    nnpType(lexical_analyser)
     lexical_analyser.acceptCharacter(";")
 
 def listeIdent(lexical_analyser: analex.LexicalAnalyser):
@@ -302,7 +302,7 @@ def listeIdent(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
-        listeIdent(lexical_analyser: analex.LexicalAnalyser)
+        listeIdent(lexical_analyser)
 
 def suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -311,11 +311,11 @@ def suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    instr(lexical_analyser: analex.LexicalAnalyser)
+    instr(lexical_analyser)
 
     if lexical_analyser.isCharacter(";"):
         lexical_analyser.acceptCharacter(";")
-        suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser)
+        suiteInstrNonVide(lexical_analyser)
 
 def suiteInstr(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -325,7 +325,7 @@ def suiteInstr(lexical_analyser: analex.LexicalAnalyser):
     '''
 
     if not lexical_analyser.isKeyword("end"):
-        suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser)
+        suiteInstrNonVide(lexical_analyser)
 
 def instr(lexical_analyser: analex.LexicalAnalyser):        
     '''
@@ -335,30 +335,30 @@ def instr(lexical_analyser: analex.LexicalAnalyser):
     '''
 
     if lexical_analyser.isKeyword("while"):
-        boucle(lexical_analyser: analex.LexicalAnalyser)
+        boucle(lexical_analyser)
 
     elif lexical_analyser.isKeyword("if"):
-        altern(lexical_analyser: analex.LexicalAnalyser)
+        altern(lexical_analyser)
 
     elif lexical_analyser.isKeyword("get") or lexical_analyser.isKeyword("put"):
-        es(lexical_analyser: analex.LexicalAnalyser)
+        es(lexical_analyser)
 
     elif lexical_analyser.isKeyword("return"):
-        retour(lexical_analyser: analex.LexicalAnalyser)
+        retour(lexical_analyser)
 
     elif lexical_analyser.isIdentifier():
         ident = lexical_analyser.acceptIdentifier()
         if lexical_analyser.isSymbol(":="):                
             # affectation
             lexical_analyser.acceptSymbol(":=")
-            expression(lexical_analyser: analex.LexicalAnalyser)
+            expression(lexical_analyser)
             logger.debug("parsed affectation")
 
         elif lexical_analyser.isCharacter("("):
             lexical_analyser.acceptCharacter("(")
 
             if not lexical_analyser.isCharacter(")"):
-                listePe(lexical_analyser: analex.LexicalAnalyser)
+                listePe(lexical_analyser)
 
             lexical_analyser.acceptCharacter(")")
             logger.debug("parsed procedure call")
@@ -378,11 +378,11 @@ def listePe(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    expression(lexical_analyser: analex.LexicalAnalyser)
+    expression(lexical_analyser)
 
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
-        listePe(lexical_analyser: analex.LexicalAnalyser)
+        listePe(lexical_analyser)
 
 def expression(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -391,13 +391,13 @@ def expression(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    logger.debug("parsing expression: " + str(lexical_analyser: analex.LexicalAnalyser.get_value()))
+    logger.debug("parsing expression: " + str(lexical_analyser.get_value()))
 
-    exp1(lexical_analyser: analex.LexicalAnalyser)
+    exp1(lexical_analyser)
 
     if lexical_analyser.isKeyword("or"):
         lexical_analyser.acceptKeyword("or")
-        exp1(lexical_analyser: analex.LexicalAnalyser)
+        exp1(lexical_analyser)
 
 def exp1(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -408,11 +408,11 @@ def exp1(lexical_analyser: analex.LexicalAnalyser):
 
     logger.debug("parsing exp1")
 
-    exp2(lexical_analyser: analex.LexicalAnalyser)
+    exp2(lexical_analyser)
 
     if lexical_analyser.isKeyword("and"):
         lexical_analyser.acceptKeyword("and")
-        exp2(lexical_analyser: analex.LexicalAnalyser)
+        exp2(lexical_analyser)
 
 def exp2(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -423,7 +423,7 @@ def exp2(lexical_analyser: analex.LexicalAnalyser):
 
     logger.debug("parsing exp2")
 
-    exp3(lexical_analyser: analex.LexicalAnalyser)
+    exp3(lexical_analyser)
 
     if (
         lexical_analyser.isSymbol("<") or
@@ -431,12 +431,12 @@ def exp2(lexical_analyser: analex.LexicalAnalyser):
         lexical_analyser.isSymbol(">") or
         lexical_analyser.isSymbol(">=")
     ):
-        opRel(lexical_analyser: analex.LexicalAnalyser)
-        exp3(lexical_analyser: analex.LexicalAnalyser)
+        opRel(lexical_analyser)
+        exp3(lexical_analyser)
 
     elif lexical_analyser.isSymbol("=") or lexical_analyser.isSymbol("/="): 
-        opRel(lexical_analyser: analex.LexicalAnalyser)
-        exp3(lexical_analyser: analex.LexicalAnalyser)
+        opRel(lexical_analyser)
+        exp3(lexical_analyser)
 
 def opRel(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -478,11 +478,11 @@ def exp3(lexical_analyser: analex.LexicalAnalyser):
     '''
 
     logger.debug("parsing exp3")
-    exp4(lexical_analyser: analex.LexicalAnalyser)    
+    exp4(lexical_analyser)    
 
     if lexical_analyser.isCharacter("+") or lexical_analyser.isCharacter("-"):
-        opAdd(lexical_analyser: analex.LexicalAnalyser)
-        exp4(lexical_analyser: analex.LexicalAnalyser)
+        opAdd(lexical_analyser)
+        exp4(lexical_analyser)
 
 def opAdd(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -513,11 +513,11 @@ def exp4(lexical_analyser: analex.LexicalAnalyser):
 
     logger.debug("parsing exp4")
 
-    prim(lexical_analyser: analex.LexicalAnalyser)    
+    prim(lexical_analyser)    
 
     if lexical_analyser.isCharacter("*") or lexical_analyser.isCharacter("/"):
-        opMult(lexical_analyser: analex.LexicalAnalyser)
-        prim(lexical_analyser: analex.LexicalAnalyser)
+        opMult(lexical_analyser)
+        prim(lexical_analyser)
 
 def opMult(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -549,9 +549,9 @@ def prim(lexical_analyser: analex.LexicalAnalyser):
     logger.debug("parsing prim")
 
     if lexical_analyser.isCharacter("+") or lexical_analyser.isCharacter("-") or lexical_analyser.isKeyword("not"):
-        opUnaire(lexical_analyser: analex.LexicalAnalyser)
+        opUnaire(lexical_analyser)
 
-    elemPrim(lexical_analyser: analex.LexicalAnalyser)
+    elemPrim(lexical_analyser)
 
 def opUnaire(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -583,15 +583,15 @@ def elemPrim(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    logger.debug("parsing elemPrim: " + str(lexical_analyser: analex.LexicalAnalyser.get_value()))
+    logger.debug("parsing elemPrim: " + str(lexical_analyser.get_value()))
 
     if lexical_analyser.isCharacter("("):
         lexical_analyser.acceptCharacter("(")
-        expression(lexical_analyser: analex.LexicalAnalyser)
+        expression(lexical_analyser)
         lexical_analyser.acceptCharacter(")")
 
     elif lexical_analyser.isInteger() or lexical_analyser.isKeyword("true") or lexical_analyser.isKeyword("false"):
-        valeur(lexical_analyser: analex.LexicalAnalyser)
+        valeur(lexical_analyser)
 
     elif lexical_analyser.isIdentifier():
         ident = lexical_analyser.acceptIdentifier()
@@ -600,7 +600,7 @@ def elemPrim(lexical_analyser: analex.LexicalAnalyser):
             lexical_analyser.acceptCharacter("(")
 
             if not lexical_analyser.isCharacter(")"):
-                listePe(lexical_analyser: analex.LexicalAnalyser)
+                listePe(lexical_analyser)
 
             lexical_analyser.acceptCharacter(")")
             logger.debug("parsed procedure call")
@@ -627,7 +627,7 @@ def valeur(lexical_analyser: analex.LexicalAnalyser):
         return "integer"
 
     elif lexical_analyser.isKeyword("true") or lexical_analyser.isKeyword("false"):
-        vtype = valBool(lexical_analyser: analex.LexicalAnalyser)
+        vtype = valBool(lexical_analyser)
         return vtype
 
     else:
@@ -670,7 +670,7 @@ def es(lexical_analyser: analex.LexicalAnalyser):
     elif lexical_analyser.isKeyword("put"):
         lexical_analyser.acceptKeyword("put")
         lexical_analyser.acceptCharacter("(")
-        expression(lexical_analyser: analex.LexicalAnalyser)
+        expression(lexical_analyser)
         lexical_analyser.acceptCharacter(")")
         logger.debug("Call to put")
 
@@ -688,10 +688,10 @@ def boucle(lexical_analyser: analex.LexicalAnalyser):
     logger.debug("parsing while loop: ")
     lexical_analyser.acceptKeyword("while")
 
-    expression(lexical_analyser: analex.LexicalAnalyser)
+    expression(lexical_analyser)
 
     lexical_analyser.acceptKeyword("loop")
-    suiteInstr(lexical_analyser: analex.LexicalAnalyser)
+    suiteInstr(lexical_analyser)
 
     lexical_analyser.acceptKeyword("end")
     logger.debug("end of while loop ")
@@ -706,14 +706,14 @@ def altern(lexical_analyser: analex.LexicalAnalyser):
     logger.debug("parsing if: ")
     lexical_analyser.acceptKeyword("if")
 
-    expression(lexical_analyser: analex.LexicalAnalyser)
+    expression(lexical_analyser)
 
     lexical_analyser.acceptKeyword("then")
-    suiteInstr(lexical_analyser: analex.LexicalAnalyser)
+    suiteInstr(lexical_analyser)
 
     if lexical_analyser.isKeyword("else"):
         lexical_analyser.acceptKeyword("else")
-        suiteInstr(lexical_analyser: analex.LexicalAnalyser)
+        suiteInstr(lexical_analyser)
 
     lexical_analyser.acceptKeyword("end")
     logger.debug("end of if")
@@ -826,7 +826,7 @@ def main():
             output_file = open(outputFilename, 'w')
 
         except:
-            print("Error: can\'t open output file!")
+            print("Error: can't open output file!")
             return
 
     else:
