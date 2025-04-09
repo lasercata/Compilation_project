@@ -16,8 +16,11 @@ LOGGING_LEVEL = logging.DEBUG
 
 
 class AnaSynException(Exception):
+    '''Defines an exception for the syntax analysis'''
+
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
         return repr(self.value)
 
@@ -25,21 +28,40 @@ class AnaSynException(Exception):
 #### Syntactical Diagrams
 ########################################################################                     
 
-def program(lexical_analyser):
+def program(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser
+    '''
+
     specifProgPrinc(lexical_analyser)
     lexical_analyser.acceptKeyword("is")
     corpsProgPrinc(lexical_analyser)
 
-def specifProgPrinc(lexical_analyser):
+def specifProgPrinc(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description.
+
+    - lexical_analyser : the lexical analyser
+    '''
+
     lexical_analyser.acceptKeyword("procedure")
     ident = lexical_analyser.acceptIdentifier()
-    logger.debug("Name of program : "+ident)
+    logger.debug("Name of program : " + ident)
 
-def  corpsProgPrinc(lexical_analyser):
+def  corpsProgPrinc(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description.
+
+    - lexical_analyser : the lexical analyser
+    '''
+
     if not lexical_analyser.isKeyword("begin"):
         logger.debug("Parsing declarations")
         partieDecla(lexical_analyser)
         logger.debug("End of declarations")
+
     lexical_analyser.acceptKeyword("begin")
 
     if not lexical_analyser.isKeyword("end"):
@@ -51,7 +73,13 @@ def  corpsProgPrinc(lexical_analyser):
     lexical_analyser.acceptFel()
     logger.debug("End of program")
 
-def partieDecla(lexical_analyser):
+def partieDecla(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if lexical_analyser.isKeyword("procedure") or lexical_analyser.isKeyword("function") :
         listeDeclaOp(lexical_analyser)
 
@@ -61,85 +89,145 @@ def partieDecla(lexical_analyser):
         else:
             listeDeclaVar(lexical_analyser)                
 
-def listeDeclaOp(lexical_analyser):
+def listeDeclaOp(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     declaOp(lexical_analyser)
     lexical_analyser.acceptCharacter(";")
 
     if lexical_analyser.isKeyword("procedure") or lexical_analyser.isKeyword("function") :
         listeDeclaOp(lexical_analyser)
 
-def declaOp(lexical_analyser):
+def declaOp(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if lexical_analyser.isKeyword("procedure"):
-        procedure(lexical_analyser)
+        procedure(lexical_analyser: analex.LexicalAnalyser)
 
     if lexical_analyser.isKeyword("function"):
-        fonction(lexical_analyser)
+        fonction(lexical_analyser: analex.LexicalAnalyser)
 
-def procedure(lexical_analyser):
+def procedure(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     lexical_analyser.acceptKeyword("procedure")
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("Name of procedure : "+ident)
 
-    partieFormelle(lexical_analyser)
+    partieFormelle(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("is")
-    corpsProc(lexical_analyser)
+    corpsProc(lexical_analyser: analex.LexicalAnalyser)
 
 
-def fonction(lexical_analyser):
+def fonction(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     lexical_analyser.acceptKeyword("function")
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("Name of function : "+ident)
 
-    partieFormelle(lexical_analyser)
+    partieFormelle(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("return")
-    nnpType(lexical_analyser)
+    nnpType(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("is")
-    corpsFonct(lexical_analyser)
+    corpsFonct(lexical_analyser: analex.LexicalAnalyser)
 
-def corpsProc(lexical_analyser):
+def corpsProc(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if not lexical_analyser.isKeyword("begin"):
-        partieDeclaProc(lexical_analyser)
+        partieDeclaProc(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("begin")
-    suiteInstr(lexical_analyser)
+    suiteInstr(lexical_analyser: analex.LexicalAnalyser)
     lexical_analyser.acceptKeyword("end")
 
-def corpsFonct(lexical_analyser):
+def corpsFonct(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if not lexical_analyser.isKeyword("begin"):
-        partieDeclaProc(lexical_analyser)
+        partieDeclaProc(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("begin")
-    suiteInstrNonVide(lexical_analyser)
+    suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser)
     lexical_analyser.acceptKeyword("end")
 
-def partieFormelle(lexical_analyser):
+def partieFormelle(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     lexical_analyser.acceptCharacter("(")
 
     if not lexical_analyser.isCharacter(")"):
-        listeSpecifFormelles(lexical_analyser)
+        listeSpecifFormelles(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptCharacter(")")
 
-def listeSpecifFormelles(lexical_analyser):
-    specif(lexical_analyser)
+def listeSpecifFormelles(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    specif(lexical_analyser: analex.LexicalAnalyser)
 
     if not lexical_analyser.isCharacter(")"):
         lexical_analyser.acceptCharacter(";")
-        listeSpecifFormelles(lexical_analyser)
+        listeSpecifFormelles(lexical_analyser: analex.LexicalAnalyser)
 
-def specif(lexical_analyser):
-    listeIdent(lexical_analyser)
+def specif(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    listeIdent(lexical_analyser: analex.LexicalAnalyser)
     lexical_analyser.acceptCharacter(":")
 
     if lexical_analyser.isKeyword("in"):
-        mode(lexical_analyser)
+        mode(lexical_analyser: analex.LexicalAnalyser)
 
-    nnpType(lexical_analyser)
+    nnpType(lexical_analyser: analex.LexicalAnalyser)
 
-def mode(lexical_analyser):
+def mode(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     lexical_analyser.acceptKeyword("in")
 
     if lexical_analyser.isKeyword("out"):
@@ -149,7 +237,13 @@ def mode(lexical_analyser):
     else:
         logger.debug("in parameter")
 
-def nnpType(lexical_analyser):
+def nnpType(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if lexical_analyser.isKeyword("integer"):
         lexical_analyser.acceptKeyword("integer")
         logger.debug("integer type")
@@ -162,67 +256,109 @@ def nnpType(lexical_analyser):
         logger.error("Unknown type found <"+ lexical_analyser.get_value() +">!")
         raise AnaSynException("Unknown type found <"+ lexical_analyser.get_value() +">!")
 
-def partieDeclaProc(lexical_analyser):
-    listeDeclaVar(lexical_analyser)
+def partieDeclaProc(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
 
-def listeDeclaVar(lexical_analyser):
-    declaVar(lexical_analyser)
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    listeDeclaVar(lexical_analyser: analex.LexicalAnalyser)
+
+def listeDeclaVar(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    declaVar(lexical_analyser: analex.LexicalAnalyser)
 
     if lexical_analyser.isIdentifier():
-        listeDeclaVar(lexical_analyser)
+        listeDeclaVar(lexical_analyser: analex.LexicalAnalyser)
 
-def declaVar(lexical_analyser):
-    listeIdent(lexical_analyser)
+def declaVar(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    listeIdent(lexical_analyser: analex.LexicalAnalyser)
     lexical_analyser.acceptCharacter(":")
     logger.debug("now parsing type...")
-    nnpType(lexical_analyser)
+    nnpType(lexical_analyser: analex.LexicalAnalyser)
     lexical_analyser.acceptCharacter(";")
 
-def listeIdent(lexical_analyser):
+def listeIdent(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("identifier found: "+str(ident))
 
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
-        listeIdent(lexical_analyser)
+        listeIdent(lexical_analyser: analex.LexicalAnalyser)
 
-def suiteInstrNonVide(lexical_analyser):
-    instr(lexical_analyser)
+def suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    instr(lexical_analyser: analex.LexicalAnalyser)
 
     if lexical_analyser.isCharacter(";"):
         lexical_analyser.acceptCharacter(";")
-        suiteInstrNonVide(lexical_analyser)
+        suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser)
 
-def suiteInstr(lexical_analyser):
+def suiteInstr(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if not lexical_analyser.isKeyword("end"):
-        suiteInstrNonVide(lexical_analyser)
+        suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser)
 
-def instr(lexical_analyser):        
+def instr(lexical_analyser: analex.LexicalAnalyser):        
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if lexical_analyser.isKeyword("while"):
-        boucle(lexical_analyser)
+        boucle(lexical_analyser: analex.LexicalAnalyser)
 
     elif lexical_analyser.isKeyword("if"):
-        altern(lexical_analyser)
+        altern(lexical_analyser: analex.LexicalAnalyser)
 
     elif lexical_analyser.isKeyword("get") or lexical_analyser.isKeyword("put"):
-        es(lexical_analyser)
+        es(lexical_analyser: analex.LexicalAnalyser)
 
     elif lexical_analyser.isKeyword("return"):
-        retour(lexical_analyser)
+        retour(lexical_analyser: analex.LexicalAnalyser)
 
     elif lexical_analyser.isIdentifier():
         ident = lexical_analyser.acceptIdentifier()
         if lexical_analyser.isSymbol(":="):                
             # affectation
             lexical_analyser.acceptSymbol(":=")
-            expression(lexical_analyser)
+            expression(lexical_analyser: analex.LexicalAnalyser)
             logger.debug("parsed affectation")
 
         elif lexical_analyser.isCharacter("("):
             lexical_analyser.acceptCharacter("(")
 
             if not lexical_analyser.isCharacter(")"):
-                listePe(lexical_analyser)
+                listePe(lexical_analyser: analex.LexicalAnalyser)
 
             lexical_analyser.acceptCharacter(")")
             logger.debug("parsed procedure call")
@@ -235,35 +371,59 @@ def instr(lexical_analyser):
         logger.error("Unknown Instruction <"+ lexical_analyser.get_value() +">!")
         raise AnaSynException("Unknown Instruction <"+ lexical_analyser.get_value() +">!")
 
-def listePe(lexical_analyser):
-    expression(lexical_analyser)
+def listePe(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    expression(lexical_analyser: analex.LexicalAnalyser)
 
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
-        listePe(lexical_analyser)
+        listePe(lexical_analyser: analex.LexicalAnalyser)
 
-def expression(lexical_analyser):
-    logger.debug("parsing expression: " + str(lexical_analyser.get_value()))
+def expression(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
 
-    exp1(lexical_analyser)
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    logger.debug("parsing expression: " + str(lexical_analyser: analex.LexicalAnalyser.get_value()))
+
+    exp1(lexical_analyser: analex.LexicalAnalyser)
 
     if lexical_analyser.isKeyword("or"):
         lexical_analyser.acceptKeyword("or")
-        exp1(lexical_analyser)
+        exp1(lexical_analyser: analex.LexicalAnalyser)
 
-def exp1(lexical_analyser):
+def exp1(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing exp1")
 
-    exp2(lexical_analyser)
+    exp2(lexical_analyser: analex.LexicalAnalyser)
 
     if lexical_analyser.isKeyword("and"):
         lexical_analyser.acceptKeyword("and")
-        exp2(lexical_analyser)
+        exp2(lexical_analyser: analex.LexicalAnalyser)
 
-def exp2(lexical_analyser):
+def exp2(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing exp2")
 
-    exp3(lexical_analyser)
+    exp3(lexical_analyser: analex.LexicalAnalyser)
 
     if (
         lexical_analyser.isSymbol("<") or
@@ -271,14 +431,20 @@ def exp2(lexical_analyser):
         lexical_analyser.isSymbol(">") or
         lexical_analyser.isSymbol(">=")
     ):
-        opRel(lexical_analyser)
-        exp3(lexical_analyser)
+        opRel(lexical_analyser: analex.LexicalAnalyser)
+        exp3(lexical_analyser: analex.LexicalAnalyser)
 
     elif lexical_analyser.isSymbol("=") or lexical_analyser.isSymbol("/="): 
-        opRel(lexical_analyser)
-        exp3(lexical_analyser)
+        opRel(lexical_analyser: analex.LexicalAnalyser)
+        exp3(lexical_analyser: analex.LexicalAnalyser)
 
-def opRel(lexical_analyser):
+def opRel(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing relationnal operator: " + lexical_analyser.get_value())
 
     if lexical_analyser.isSymbol("<"):
@@ -304,15 +470,27 @@ def opRel(lexical_analyser):
         logger.error(msg)
         raise AnaSynException(msg)
 
-def exp3(lexical_analyser):
+def exp3(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing exp3")
-    exp4(lexical_analyser)    
+    exp4(lexical_analyser: analex.LexicalAnalyser)    
 
     if lexical_analyser.isCharacter("+") or lexical_analyser.isCharacter("-"):
-        opAdd(lexical_analyser)
-        exp4(lexical_analyser)
+        opAdd(lexical_analyser: analex.LexicalAnalyser)
+        exp4(lexical_analyser: analex.LexicalAnalyser)
 
-def opAdd(lexical_analyser):
+def opAdd(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing additive operator: " + lexical_analyser.get_value())
 
     if lexical_analyser.isCharacter("+"):
@@ -326,16 +504,28 @@ def opAdd(lexical_analyser):
         logger.error(msg)
         raise AnaSynException(msg)
 
-def exp4(lexical_analyser):
+def exp4(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing exp4")
 
-    prim(lexical_analyser)    
+    prim(lexical_analyser: analex.LexicalAnalyser)    
 
     if lexical_analyser.isCharacter("*") or lexical_analyser.isCharacter("/"):
-        opMult(lexical_analyser)
-        prim(lexical_analyser)
+        opMult(lexical_analyser: analex.LexicalAnalyser)
+        prim(lexical_analyser: analex.LexicalAnalyser)
 
-def opMult(lexical_analyser):
+def opMult(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing multiplicative operator: " + lexical_analyser.get_value())
 
     if lexical_analyser.isCharacter("*"):
@@ -349,15 +539,27 @@ def opMult(lexical_analyser):
         logger.error(msg)
         raise AnaSynException(msg)
 
-def prim(lexical_analyser):
+def prim(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing prim")
 
     if lexical_analyser.isCharacter("+") or lexical_analyser.isCharacter("-") or lexical_analyser.isKeyword("not"):
-        opUnaire(lexical_analyser)
+        opUnaire(lexical_analyser: analex.LexicalAnalyser)
 
-    elemPrim(lexical_analyser)
+    elemPrim(lexical_analyser: analex.LexicalAnalyser)
 
-def opUnaire(lexical_analyser):
+def opUnaire(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing unary operator: " + lexical_analyser.get_value())
 
     if lexical_analyser.isCharacter("+"):
@@ -374,16 +576,22 @@ def opUnaire(lexical_analyser):
         logger.error(msg)
         raise AnaSynException(msg)
 
-def elemPrim(lexical_analyser):
-    logger.debug("parsing elemPrim: " + str(lexical_analyser.get_value()))
+def elemPrim(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    logger.debug("parsing elemPrim: " + str(lexical_analyser: analex.LexicalAnalyser.get_value()))
 
     if lexical_analyser.isCharacter("("):
         lexical_analyser.acceptCharacter("(")
-        expression(lexical_analyser)
+        expression(lexical_analyser: analex.LexicalAnalyser)
         lexical_analyser.acceptCharacter(")")
 
     elif lexical_analyser.isInteger() or lexical_analyser.isKeyword("true") or lexical_analyser.isKeyword("false"):
-        valeur(lexical_analyser)
+        valeur(lexical_analyser: analex.LexicalAnalyser)
 
     elif lexical_analyser.isIdentifier():
         ident = lexical_analyser.acceptIdentifier()
@@ -392,7 +600,7 @@ def elemPrim(lexical_analyser):
             lexical_analyser.acceptCharacter("(")
 
             if not lexical_analyser.isCharacter(")"):
-                listePe(lexical_analyser)
+                listePe(lexical_analyser: analex.LexicalAnalyser)
 
             lexical_analyser.acceptCharacter(")")
             logger.debug("parsed procedure call")
@@ -406,21 +614,33 @@ def elemPrim(lexical_analyser):
         logger.error("Unknown Value!")
         raise AnaSynException("Unknown Value!")
 
-def valeur(lexical_analyser):
+def valeur(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if lexical_analyser.isInteger():
         entier = lexical_analyser.acceptInteger()
         logger.debug("integer value: " + str(entier))
         return "integer"
 
     elif lexical_analyser.isKeyword("true") or lexical_analyser.isKeyword("false"):
-        vtype = valBool(lexical_analyser)
+        vtype = valBool(lexical_analyser: analex.LexicalAnalyser)
         return vtype
 
     else:
         logger.error("Unknown Value! Expecting an integer or a boolean value!")
         raise AnaSynException("Unknown Value ! Expecting an integer or a boolean value!")
 
-def valBool(lexical_analyser):
+def valBool(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     if lexical_analyser.isKeyword("true"):
         lexical_analyser.acceptKeyword("true")    
         logger.debug("boolean true value")
@@ -431,7 +651,13 @@ def valBool(lexical_analyser):
 
     return "boolean"
 
-def es(lexical_analyser):
+def es(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing E/S instruction: " + lexical_analyser.get_value())
 
     if lexical_analyser.isKeyword("get"):
@@ -444,7 +670,7 @@ def es(lexical_analyser):
     elif lexical_analyser.isKeyword("put"):
         lexical_analyser.acceptKeyword("put")
         lexical_analyser.acceptCharacter("(")
-        expression(lexical_analyser)
+        expression(lexical_analyser: analex.LexicalAnalyser)
         lexical_analyser.acceptCharacter(")")
         logger.debug("Call to put")
 
@@ -452,35 +678,53 @@ def es(lexical_analyser):
         logger.error("Unknown E/S instruction!")
         raise AnaSynException("Unknown E/S instruction!")
 
-def boucle(lexical_analyser):
+def boucle(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing while loop: ")
     lexical_analyser.acceptKeyword("while")
 
-    expression(lexical_analyser)
+    expression(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("loop")
-    suiteInstr(lexical_analyser)
+    suiteInstr(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("end")
     logger.debug("end of while loop ")
 
-def altern(lexical_analyser):
+def altern(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing if: ")
     lexical_analyser.acceptKeyword("if")
 
-    expression(lexical_analyser)
+    expression(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("then")
-    suiteInstr(lexical_analyser)
+    suiteInstr(lexical_analyser: analex.LexicalAnalyser)
 
     if lexical_analyser.isKeyword("else"):
         lexical_analyser.acceptKeyword("else")
-        suiteInstr(lexical_analyser)
+        suiteInstr(lexical_analyser: analex.LexicalAnalyser)
 
     lexical_analyser.acceptKeyword("end")
     logger.debug("end of if")
 
-def retour(lexical_analyser):
+def retour(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
     logger.debug("parsing return instruction")
     lexical_analyser.acceptKeyword("return")
     expression(lexical_analyser)
@@ -491,16 +735,45 @@ def retour(lexical_analyser):
 def main():
     parser = argparse.ArgumentParser(description='Do the syntactical analysis of a NNP program.')
 
-    parser.add_argument('inputfile', type=str, nargs=1, help='name of the input source file')
-    parser.add_argument('-o', '--outputfile', dest='outputfile', action='store', \
-            default="", help='name of the output file (default: stdout)')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.0')
-    parser.add_argument('-d', '--debug', action='store_const', const=logging.DEBUG, \
-            default=logging.INFO, help='show debugging info on output')
-    parser.add_argument('-p', '--pseudo-code', action='store_const', const=True, default=False, \
-            help='enables output of pseudo-code instead of assembly code')
-    parser.add_argument('--show-ident-table', action='store_true', \
-            help='shows the final identifiers table')
+    parser.add_argument(
+        'inputfile',
+        type=str,
+        nargs=1,
+        help='name of the input source file'
+    )
+
+    parser.add_argument(
+        '-o', '--outputfile',
+        dest='outputfile',
+        action='store',
+        default="",
+        help='name of the output file (default: stdout)'
+    )
+    parser.add_argument(
+        '-v', '--version',
+        action='version',
+        version='%(prog)s 1.0'
+    )
+    parser.add_argument(
+        '-d', '--debug',
+        action='store_const',
+        const=logging.DEBUG,
+        default=logging.INFO,
+        help='show debugging info on output'
+    )
+    parser.add_argument(
+        '-p', '--pseudo-code',
+        action='store_const',
+        const=True,
+        default=False,
+        help='enables output of pseudo-code instead of assembly code'
+    )
+    parser.add_argument(
+        '--show-ident-table',
+        action='store_true',
+        help='shows the final identifiers table'
+    )
+
     args = parser.parse_args()
 
     filename = args.inputfile[0]
@@ -513,7 +786,7 @@ def main():
 
     outputFilename = args.outputfile
 
-      # create logger      
+    # create logger      
     LOGGING_LEVEL = args.debug
     logger.setLevel(LOGGING_LEVEL)
     ch = logging.StreamHandler()
