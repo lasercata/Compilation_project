@@ -1,20 +1,30 @@
 #!/usr/bin/python
 
-##     @package anasyn
-#     Syntactical Analyser package. 
-#
+'''
+@package anasyn
+Syntactical Analyser package. 
+'''
 
+##-Imports
+#---General
 import sys, argparse, re
 import logging
 
-import analex
+#---Project
+try:
+    import src.analex as analex
 
+except ModuleNotFoundError:
+    import analex
+
+##-Init
 logger = logging.getLogger('anasyn')
 
 DEBUG = False
 LOGGING_LEVEL = logging.DEBUG
 
 
+##-Code
 class AnaSynException(Exception):
     '''Defines an exception for the syntax analysis'''
 
@@ -732,62 +742,18 @@ def retour(lexical_analyser: analex.LexicalAnalyser):
 
 
 ########################################################################                     
-def main():
-    parser = argparse.ArgumentParser(description='Do the syntactical analysis of a NNP program.')
+def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool, debug_lvl):
+    '''TODO: Docstring for main_anasyn.
 
-    parser.add_argument(
-        'inputfile',
-        type=str,
-        nargs=1,
-        help='name of the input source file'
-    )
+    - fn               : the input filename of the program ;
+    - fn_out           : the name of the potential output file. If "", prints to stdout instead ;
+    - pseudo_code      : TODO
+    - show_ident_table : if true, displays the ident table ;
+    - debug_lvl        : indicates the logging level.
+    '''
 
-    parser.add_argument(
-        '-o', '--outputfile',
-        dest='outputfile',
-        action='store',
-        default="",
-        help='name of the output file (default: stdout)'
-    )
-    parser.add_argument(
-        '-v', '--version',
-        action='version',
-        version='%(prog)s 1.0'
-    )
-    parser.add_argument(
-        '-d', '--debug',
-        action='store_const',
-        const=logging.DEBUG,
-        default=logging.INFO,
-        help='show debugging info on output'
-    )
-    parser.add_argument(
-        '-p', '--pseudo-code',
-        action='store_const',
-        const=True,
-        default=False,
-        help='enables output of pseudo-code instead of assembly code'
-    )
-    parser.add_argument(
-        '--show-ident-table',
-        action='store_true',
-        help='shows the final identifiers table'
-    )
-
-    args = parser.parse_args()
-
-    filename = args.inputfile[0]
-    f = None
-    try:
-        f = open(filename, 'r')
-    except:
-        print("Error: can\'t open input file!")
-        return
-
-    outputFilename = args.outputfile
-
-    # create logger      
-    LOGGING_LEVEL = args.debug
+    # create logger
+    LOGGING_LEVEL = debug_lvl
     logger.setLevel(LOGGING_LEVEL)
     ch = logging.StreamHandler()
     ch.setLevel(LOGGING_LEVEL)
@@ -795,35 +761,39 @@ def main():
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    if args.pseudo_code:
+    if pseudo_code: #TODO
         True#
     else:
         False#
 
     lexical_analyser = analex.LexicalAnalyser()
 
-    lineIndex = 0
-    for line in f:
-        line = line.rstrip('\r\n')
-        lexical_analyser.analyse_line(lineIndex, line)
-        lineIndex = lineIndex + 1
+    try:
+        with open(fn, 'r') as f:
+            lineIndex = 0
 
-    f.close()
+            for line in f:
+                line = line.rstrip('\r\n')
+                lexical_analyser.analyse_line(lineIndex, line)
+                lineIndex = lineIndex + 1
 
+    except Exception as e:
+        print(f"Error: {e}: can't open the input file!")
+        return
 
     # launch the analysis of the program
     lexical_analyser.init_analyser()
     program(lexical_analyser)
 
-    if args.show_ident_table:
+    if show_ident_table:
         print("------ IDENTIFIER TABLE ------")
         #print(str(identifierTable))
         print("------ END OF IDENTIFIER TABLE ------")
 
 
-    if outputFilename != "":
+    if fn_out != "":
         try:
-            output_file = open(outputFilename, 'w')
+            output_file = open(fn_out, 'w')
 
         except:
             print("Error: can't open output file!")
@@ -838,10 +808,10 @@ def main():
     #        output_file.write("%s\n" % str(codeGenerator.get_instruction_at_index(instrIndex)))
     #        instrIndex += 1
 
-    if outputFilename != "":
+    if fn_out != "":
         output_file.close() 
 
 ########################################################################                 
 
 if __name__ == "__main__":
-    main() 
+    pass
