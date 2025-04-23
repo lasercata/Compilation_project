@@ -40,7 +40,7 @@ class AnaSynException(Exception):
 
 def program(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    Entry point of the grammar.
 
     - lexical_analyser : the lexical analyser
     '''
@@ -242,7 +242,7 @@ def mode(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isKeyword("out"):
         lexical_analyser.acceptKeyword("out")
-        logger.debug("in out parameter")                
+        logger.debug("in out parameter")
 
     else:
         logger.debug("in parameter")
