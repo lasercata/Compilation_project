@@ -15,13 +15,13 @@ LEXICAL_UNIT_IDENTIFIER = "ident"
 LEXICAL_UNIT_INTEGER    = "integer"
 LEXICAL_UNIT_FEL        = "fel"
 
-keywords = [ \
-        "and", "begin", "else", "end", \
-        "error", "false", "function", "get", \
-        "if", "in", "is", "loop", "not", "or", "out", \
-        "procedure", "put", "return", "then", "true", "while", \
-        "integer", "boolean" \
-        ]
+keywords = [
+    "and", "begin", "else", "end",
+    "error", "false", "function", "get",
+    "if", "in", "is", "loop", "not", "or", "out",
+    "procedure", "put", "return", "then", "true", "while",
+    "integer", "boolean"
+]
 
 
 class AnaLexException(Exception):
@@ -35,10 +35,12 @@ class AnaLexException(Exception):
 ########################################################################
 
 ## Class LexicalUnit
-#
-# Root class for the hierarchy of Lexical Units
 class LexicalUnit(object):
-    '''Mother class defining a general lexical unit'''
+    '''
+    Mother class defining a general lexical unit
+
+    Root class for the hierarchy of Lexical Units
+    '''
 
     line_index = -1
     col_index = -1
@@ -74,10 +76,10 @@ class LexicalUnit(object):
     def is_keyword(self, keyword) -> bool:
         return False
 
-    def is_character(self, c) -> bool:
+    def is_character(self, c: str) -> bool:
         return False
 
-    def is_symbol(self, s) -> bool:
+    def is_symbol(self, s: str) -> bool:
         return False
 
     def is_integer(self) -> bool:
@@ -89,110 +91,146 @@ class LexicalUnit(object):
     def is_fel(self) -> bool:
         return False
 
-    ## Static method used to retreive a specific LexicalUnit from 
-        # a line of text formatted by __str__
-        # @param line the line of text to process
-        # @return A lexical unit (instance of a child class)
     @staticmethod
-    def extract_from_line(line):
+    def extract_from_line(line: str):
+        '''
+        Static method used to retreive a specific LexicalUnit from 
+        a line of text formatted by __str__
+
+        @param line : the line of text to process
+
+        @return A lexical unit (instance of a child class)
+        '''
+
         fields = line.split('\t')
+
         if fields[0] == Identifier.__class__.__name__:
             return Identifier(fields[1], fields[2], fields[3], fields[4])
+
         elif fields[0] == Keyword.__class__.__name__:
             return Keyword(fields[1], fields[2], fields[3], fields[4])
+
         elif fields[0] == Character.__class__.__name__:
-            return Character(fields[1], fields[2], fields[3], fields[4])
+            return Character(int(fields[1]), fields[2], fields[3], fields[4])
+
         elif fields[0] == Symbol.__class__.__name__:
-            return Symbol(fields[1], fields[2], fields[3], fields[4])
+            return Symbol(int(fields[1]), fields[2], fields[3], fields[4])
+
         elif fields[0] == Fel.__class__.__name__:
             return Fel(fields[1], fields[2], fields[3], fields[4])
+
         elif fields[0] == Integer.__class__.__name__:
             return Integer(fields[1], fields[2], fields[3], fields[4])
 
-        ## Returns the object as a formatted string
     def __str__(self):
-        unitValue = {'classname':self.__class__.__name__,'lIdx':self.line_index,'cIdx':self.col_index,'length':self.length,'value':self.value}
+        '''Returns the object as a formatted string'''
+
+        unitValue = {'classname': self.__class__.__name__, 'lIdx': self.line_index, 'cIdx': self.col_index, 'length': self.length, 'value': self.value}
         return '%(classname)s\t%(lIdx)d\t%(cIdx)d\t%(length)d\t%(value)s\n' % unitValue
 
-## Class to represent Identifiers
-#
-# This class inherits from LexicalUnit.
+# Class to represent Identifiers
 class Identifier(LexicalUnit):
-    ## The constructor
-    def __init__(self, l, c, ln, v):
+    '''
+    Class to represent Identifiers
+
+    This class inherits from LexicalUnit.
+    '''
+
+    def __init__(self, l: int, c: int, ln: int, v: str):
         super(Identifier, self).__init__(l, c, ln, v)
 
-    ## Return true since it is an Identifier
     def is_identifier(self):
+        '''Return true since it is an Identifier'''
+
         return True
 
-## Class to represent Keywords
-#
-# This class inherits from LexicalUnit.        
+# Class to represent Keywords
 class Keyword(LexicalUnit):
-    ## The constructor
-    def __init__(self, l, c, ln, v):
+    '''
+    Class to represent Keywords
+
+    This class inherits from LexicalUnit.        
+    '''
+
+    def __init__(self, l: int, c: int, ln: int, v: str):
         super(Keyword, self).__init__(l, c, ln, v)
 
-        ## Return true since it is a keyword
-    def is_keyword(self, keyword):
+    def is_keyword(self, keyword: str) -> bool:
+        '''Return true since it is a keyword'''
+
         return self.get_value() == keyword
 
-## Class to represent Characters
-#
-# This class inherits from LexicalUnit.            
+# Class to represent Characters
 class Character(LexicalUnit):
-    ## The constructor
-    def __init__(self, l: int, c, ln, v):
+    '''
+    Class to represent Characters
+
+    This class inherits from LexicalUnit.            
+    '''
+
+    def __init__(self, l: int, c: int, ln: int, v: str):
         super(Character, self).__init__(l, c, ln, v)
 
-        ## Return true since it is a character
-    def is_character(self, c):
+    def is_character(self, c: str) -> bool:
+        '''Return true since it is a character'''
+
         return self.get_value() == c
 
-## Class to represent Symbols
-#
-# This class inherits from LexicalUnit.        
+# Class to represent Symbols
 class Symbol(LexicalUnit):
-    ## The constructor
-    def __init__(self, l: int, c, ln, v):
+    '''
+    Class to represent Symbols
+
+    This class inherits from LexicalUnit.        
+    '''
+
+    def __init__(self, l: int, c: int, ln: int, v: str):
         super(Symbol, self).__init__(l, c, ln, v)
 
-        ## Return true since it is a symbol
-    def is_symbol(self, s):
+    def is_symbol(self, s: str):
+        '''Return true since it is a symbol'''
+
         return self.get_value() == s
 
-## Class to represent Integers
-#
-# This class inherits from LexicalUnit.        
+# Class to represent Integers
 class Integer(LexicalUnit):
-    ## The constructor
-    def __init__(self, l, c, ln, v):
+    '''
+    Class to represent Integers.
+
+    This class inherits from LexicalUnit.        
+    '''
+
+    def __init__(self, l: int, c: int, ln: int, v: str):
         super(Integer, self).__init__(l, c, ln, v)
 
-        ## Return true since it is an integer
     def is_integer(self):
+        '''Return true since it is an integer'''
+
         return True
 
-## Class to represent Fel (End of entry)
-#
-# This class inherits from LexicalUnit.            
+# Class to represent Fel (End of entry)
 class Fel(LexicalUnit):
-    ## The constructor
-    def __init__(self, l, c, ln, v):
+    '''
+    Class to represent Fel (End of entry)
+    This class inherits from LexicalUnit.
+    '''
+
+    def __init__(self, l: int, c: int, ln: int, v: str):
+        '''Constructor'''
+
         super(Fel, self).__init__(l, c, ln, v)
 
-        ## Return true since it is a Fel instance
     def is_fel(self) -> bool:
+        '''Return true since it is a Fel instance'''
+
         return True
 
 ## Lexical analyser class
-#
 class LexicalAnalyser(object):    
     '''TODO: description'''
 
-    ## Attribute to store the different lexical units
-    lexical_units = []
+    ## Attribute to store the different lexical units (defined in init)
+    # lexical_units: list[LexicalUnit] = []
 
     ## Index used to keep track of the lexical unit under treatment
     lexical_unit_index = -1
@@ -200,7 +238,7 @@ class LexicalAnalyser(object):
     def __init__(self):
         '''Constructor'''
 
-        self.lexical_units = []
+        self.lexical_units: list[LexicalUnit] = []
 
     def analyse_line(self, lineIndex: int, line: str):
         '''
@@ -465,7 +503,7 @@ class LexicalAnalyser(object):
         else:
             raise AnaLexException("Expecting end of program <line "+str(self.lexical_units[self.lexical_unit_index].get_line_index())+", column "+str(self.lexical_units[self.lexical_unit_index].get_col_index())+"> !")
 
-    def acceptCharacter(self, c):
+    def acceptCharacter(self, c: str):
         '''
         Accepts a given character if it corresponds to the current lexical unit.
 
@@ -482,7 +520,7 @@ class LexicalAnalyser(object):
         else:
             raise AnaLexException("Expecting character " + c + " <line "+str(self.lexical_units[self.lexical_unit_index].get_line_index())+", column "+str(self.lexical_units[self.lexical_unit_index].get_col_index())+"> !")    
 
-    def acceptSymbol(self, s):
+    def acceptSymbol(self, s: str):
         '''
         Accepts a given symbol if it corresponds to the current lexical unit.
 
@@ -531,7 +569,7 @@ class LexicalAnalyser(object):
 
         return False
 
-    def isCharacter(self, c) -> bool:
+    def isCharacter(self, c: str) -> bool:
         '''
         Tests if a given character corresponds to the current lexical unit.
 
@@ -545,7 +583,7 @@ class LexicalAnalyser(object):
         if self.lexical_units[self.lexical_unit_index].is_character(c):
             return True
 
-        return False            
+        return False
 
     def isInteger(self) -> bool:
         '''
@@ -563,7 +601,7 @@ class LexicalAnalyser(object):
 
         return False
 
-    def isSymbol(self, s) -> bool:
+    def isSymbol(self, s: str) -> bool:
         '''
         Tests if a given symbol corresponds to the current lexical unit.
 
@@ -595,13 +633,17 @@ class LexicalAnalyser(object):
 
 ########################################################################                          
 
-## Tests if a keyword is in the table of keywords
-# @return True if the keyword is found
-def string_is_keyword(s):
-    return keywords.count(s) != 0
+def string_is_keyword(s: str) -> bool:
+    '''
+    Tests if a keyword is in the table of keywords.
+
+    @return True if the keyword is found
+    '''
+
+    return s in keywords
 
 
-########################################################################                     
+########################################################################
 def main():
     parser = argparse.ArgumentParser(description='Do the lexical analysis of a NNP program.')
     parser.add_argument('inputfile', type=str, nargs=1, help='name of the input source file')
@@ -633,7 +675,7 @@ def main():
 
     lexical_analyser.save_to_file(outputFilename)
 
-########################################################################                 
+########################################################################
 
 if __name__ == "__main__":
     main() 

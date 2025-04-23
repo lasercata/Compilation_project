@@ -7,7 +7,7 @@ Syntactical Analyser package.
 
 ##-Imports
 #---General
-import sys, argparse, re
+import sys, re
 import logging
 
 #---Project
@@ -28,10 +28,10 @@ LOGGING_LEVEL = logging.DEBUG
 class AnaSynException(Exception):
     '''Defines an exception for the syntax analysis'''
 
-    def __init__(self, value):
+    def __init__(self, value: str):
         self.value = value
 
-    def __str__(self):
+    def __str__(self) -> str:
         return repr(self.value)
 
 ########################################################################                     
@@ -741,9 +741,10 @@ def retour(lexical_analyser: analex.LexicalAnalyser):
 
 
 
-########################################################################                     
+########################################################################
 def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool, debug_lvl):
-    '''TODO: Docstring for main_anasyn.
+    '''
+    TODO: Docstring for main_anasyn.
 
     - fn               : the input filename of the program ;
     - fn_out           : the name of the potential output file. If "", prints to stdout instead ;
@@ -757,12 +758,14 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
     logger.setLevel(LOGGING_LEVEL)
     ch = logging.StreamHandler()
     ch.setLevel(LOGGING_LEVEL)
+
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
     if pseudo_code: #TODO
         True#
+
     else:
         False#
 
@@ -782,8 +785,12 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
         return
 
     # launch the analysis of the program
-    lexical_analyser.init_analyser()
-    program(lexical_analyser)
+    try:
+        lexical_analyser.init_analyser()
+        program(lexical_analyser)
+
+    except Exception as err:
+        print(f'Syntax error: {err}')
 
     if show_ident_table:
         print("------ IDENTIFIER TABLE ------")
@@ -791,7 +798,7 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
         print("------ END OF IDENTIFIER TABLE ------")
 
 
-    if fn_out != "":
+    if fn_out != '':
         try:
             output_file = open(fn_out, 'w')
 
@@ -808,10 +815,10 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
     #        output_file.write("%s\n" % str(codeGenerator.get_instruction_at_index(instrIndex)))
     #        instrIndex += 1
 
-    if fn_out != "":
+    if fn_out != '':
         output_file.close() 
 
-########################################################################                 
+########################################################################
 
 if __name__ == "__main__":
-    pass
+    pass # To run this file, use the file `main`.

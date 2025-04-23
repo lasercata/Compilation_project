@@ -54,7 +54,7 @@ class AnasynParserUi:
             '-o', '--outputfile',
             dest='outputfile',
             action='store',
-            default="",
+            default='',
             help='name of the output file (default: stdout)'
         )
         self.parser.add_argument(
