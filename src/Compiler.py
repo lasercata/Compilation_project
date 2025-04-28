@@ -1,4 +1,4 @@
-class Compilateur:
+class Compiler:
     def __init__(self, anaLexResult, fileName):
         self.anaLexResult = anaLexResult
         self.outputFile = open(fileName + "_compiled.txt", "w+")
