@@ -1,4 +1,4 @@
-from Compilateur import Compilateur
+from Compiler import Compiler
 import analex
 
 test_lines = """Keyword 12      0       9       procedure
@@ -50,5 +50,5 @@ Keyword 29      2       3       end
 Keyword 30      0       3       end
 Fel     30      3       1       ."""
 
-compilateur = Compilateur(test_lines, "quoicoubeh")
-compilateur.main()
+compiler = Compiler(test_lines, "quoicoubeh")
+compiler.main()
