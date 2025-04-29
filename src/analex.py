@@ -56,6 +56,7 @@ class LexicalUnit(object):
         - ln    : the length of the unit ;
         - value : TODO
         '''
+
         self.line_index = l
         self.col_index = c
         self.length = ln
