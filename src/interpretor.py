@@ -11,29 +11,38 @@ class VM:
     def debutProg(self):
         self.stack = []
         self.dictVariable = {}
-        self.ip = 0 #Increment
+        self.ip = -1 #Increment
         self.ipTas = -1 #Decrement
         self.base = 0
-        self.co = 0        
+        self.co = 0   
+
+
     def finProg(self):
         sys.out()
 
     def reserver(self, n: int):
         '''Reserve n places, supposed the heap was far away from the stack '''
-        for i in range(1,n):
-            self.stack[self.ip + i] = None
+        for i in range(0, n):
+            self.stack.insert(self.ip + 1, None)
+
         self.ip+=n
 
     def empiler(self, val: int):
-        self.ip += 1
+        self.reserver(1)
         self.stack[self.ip]=val
 
-    def empilerAdresse(self, adresse: int):
-        self.ip += 1
-        self.stack[self.ip] = adresse
+    def empilerAd(self, addr: int):
+        self.empiler(self.stack[addr])
 
-    def affectation(self, varName: str, varValue: int):
-        self.dictVariable[varName] = varValue #self.stack[self.stack.index(None)-2]=self.stack[self.stack.index(null)-1]
+   # def _affectation(self, varName: str, varValue: int):
+   #     self.dictVariable[varName] = varValue #self.stack[self.stack.index(None)-2]=self.stack[self.stack.index(null)-1]
+    
+    def affectation(self):
+        self.stack[self.stack[self.ip - 1]]= self.stack[self.ip]
+        del self.stack[self.ip]
+        self.ip-=1
+        del self.stack[self.ip]
+        self.ip-=1
 
     def valeurPile(self):
         self.stack[self.ip] = self.stack[self.stack[self.ip]]
@@ -43,7 +52,8 @@ class VM:
 
     def put(self):
         '''ça put et ça dépile aussi'''
-        print(self.stack[self.ip] A self.stack[self.ip] = None)
+        print(self.stack[self.ip])
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def moins(self):
@@ -51,62 +61,62 @@ class VM:
 
     def sous(self):
         self.stack[self.ip - 1] -= self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def add(self):
         self.stack[self.ip - 1] += self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def mult(self):
         self.stack[self.ip - 1] *= self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def div(self):
         self.stack[self.ip - 1] /= self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def egal(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] == self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def diff(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] != self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def inf(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] < self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def infeg(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] <= self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def sup(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] > self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def supeg(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] >= self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def et(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] and self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip] 
         self.ip -= 1
 
     def ou(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] or self.stack[self.ip]
-        self.stack[self.ip] = None
+        del self.stack[self.ip]
         self.ip -= 1
 
     def non(self):
@@ -123,11 +133,11 @@ class VM:
         else : 
             self.co -= 1 
         
-        self.stack[self.ip] = None  
+        del self.stack[self.ip]   
         self.ip -=1 
 
-    def erreur(self):
-        raise Exception('Execution error')
+    def erreur(self, exp : str):
+        raise Exception(exp)
 
     def empilerTas(self, val : int):
         self.stack[self.ipTas]=val
@@ -166,6 +176,11 @@ class VM:
         '''To do'''
 
         pass
+    
+    def traStat(self):
+        '''To do '''
+
+        pass
 
     def traConstr(self):
         '''To do'''
@@ -176,3 +191,51 @@ class VM:
         '''To do'''
 
         pass
+    
+    
+    def execute_instruction(self, instruction):
+        '''Excecute an instruction Nilnovi'''
+
+        nom_instr = instruction[0]
+        
+        if hasattr(self, nom_instr):
+            method = getattr(self, nom_instr)
+            if len(instruction) > 1:
+                method(*instruction[1:])
+            else:
+                method()
+        else:
+            raise ValueError(f"Unknown instruction: {nom_instr}")
+
+def parse_nilnovi_object_line(line: str):
+    '''Parse a line of a nilnovi file'''
+
+    ret = []
+    line = line.strip('\n')
+
+    if '()' in line or '(' not in line:
+        return [line.strip('()')]
+    
+    ret.append(line[:line.index('(')])
+    ret.append(int(line[line.index('(')+1:line.index(')')]))
+
+    return ret
+
+
+def run_vm(fn: str):
+    '''
+    Running the vm using a file.
+    '''
+    
+    vm = VM()
+
+    with open(fn, 'r') as f:
+        for line in f.readlines():
+            lp = parse_nilnovi_object_line(line)
+            vm.execute_instruction(lp)
+            print(lp)
+            print(vm.stack)
+
+if __name__ == "__main__":
+    from sys import argv
+    run_vm(argv[1])
