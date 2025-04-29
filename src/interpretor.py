@@ -3,14 +3,16 @@ import sys
 class VM: 
     '''Class defining the interpretor of the object code.'''
 
-    def __init__(self, object_code: str):
+    def __init__(self, object_code: str, debug: bool = False):
         '''
-        Constructor
+        Constructor of the class.
 
-        - object_code : the instructions (in object nilnovi).
+        - object_code : the instructions (in object nilnovi) ;
+        - debug       : boolean indicating if printing debug variables.
         '''
 
         self.instructions = object_code.split('\n')
+        self.debug = debug
 
     def pop_stack(self) -> None | int | bool:
         '''
@@ -23,7 +25,7 @@ class VM:
 
         return ret
 
-    def run(self, debug: bool = False):
+    def run(self):
         '''Runs the program.'''
 
         self.debutProg()
@@ -31,23 +33,31 @@ class VM:
     
         last_line = len(self.instructions)
 
-        while self.co < last_line:
-            inst = self.instructions[self.co]
-            parsed_instr = parse_nilnovi_object_line(inst)
+        try:
+            while self.co < last_line:
+                inst = self.instructions[self.co]
+                parsed_instr = parse_nilnovi_object_line(inst)
 
-            if debug:
-                print(parsed_instr)
-                print(self.stack)
+                if self.debug:
+                    print(f'Instruction : {parsed_instr}')
+                    print(f'Stack       : {self.stack}')
 
-            self.execute_instruction(parsed_instr)
-            self.co += 1
+                self.execute_instruction(parsed_instr)
+                self.co += 1
+
+        except Exception as e:
+            print(f'Exception: {e}')
        
 
     def debutProg(self):
+        '''Initialises the variables of the program.'''
+
         self.stack = []
         self.dictVariable = {}
-        self.ip = -1 #Increment
-        self.ipTas = -1 #Decrement
+
+        self.ip = -1 # The pointer to the summit of the stack. Increment when adding element.
+        self.ipTas = -1 # The pointer to the summit of the heap (used as a stack). Decrement when adding element.
+
         self.base = 0
 
 
@@ -64,7 +74,7 @@ class VM:
 
     def empiler(self, val: int):
         self.reserver(1)
-        self.stack[self.ip]=val
+        self.stack[self.ip] = val
 
     def empilerAd(self, addr: int):
         self.empiler(self.stack[addr])
@@ -78,7 +88,12 @@ class VM:
         self.pop_stack()
 
     def valeurPile(self):
-        self.stack[self.ip] = self.stack[self.stack[self.ip]]
+        '''
+        Replaces the summit of the stack by the elements designated by the current element on the summit of the stack.
+        '''
+
+        addr = self.stack[self.ip] # The old summit of the stack
+        self.stack[self.ip] = self.stack[addr]
 
     def get(self):
         self.stack[self.stack[self.ip]] = input(">")
@@ -112,8 +127,25 @@ class VM:
         self.pop_stack()
 
     def diff(self):
-        self.stack[self.ip - 1] = self.stack[self.ip - 1] != self.stack[self.ip]
-        self.pop_stack()
+        '''
+        Add to the summit of the stack the boolean value op1 != op2, where the stack is :
+
+             ^
+             |
+            op2
+            op1
+
+        It remove op2 and op1 from the stack.
+        '''
+
+        op2 = self.pop_stack()
+        op1 = self.pop_stack()
+
+        self.empiler(op1 != op2)
+        # print('here', op1 != op2, self.ip)
+
+        # self.stack[self.ip - 1] = self.stack[self.ip - 1] != self.stack[self.ip]
+        # self.pop_stack()
 
     def inf(self):
         self.stack[self.ip - 1] = self.stack[self.ip - 1] < self.stack[self.ip]
@@ -143,23 +175,38 @@ class VM:
         self.stack[self.ip] = not self.stack[self.ip]
 
 
-    def tra(self, adresse: int):
-        self.co = adresse
+    def tra(self, addr: int):
+        '''
+        Jumps to the line `addr` in the instruction list (goto).
 
-    def tze(self, adresse: int):
-        if self.stack[self.ip] == 0:
-            self.tra(adresse)
-        else : 
-            self.co -= 1 
+        The compiled code suppose that the lines are in range [|1 ; n|].
+        In the internal representation, the instructions are in range [|0 ; n - 1|].
+        This is the reason of the `-1`.
+
+        - addr : the line to jump to.
+        '''
+
+        self.co = addr - 1
+
+    def tze(self, addr: int):
+        '''
+        Checks the value at the summit of the stack, and if it is `False`, changes `self.co` to point to the instruction at line `addr`.
+
+        - addr : the line to jump to in the object instructions, if the summit of the stack is `False`.
+        '''
+
+        if not self.pop_stack():
+            self.tra(addr)
+
+            if self.debug:
+                print(f'tze: jumping at address {addr}')
         
-        self.pop_stack()
-
     def erreur(self, exp : str):
         raise Exception(exp)
 
     def empilerTas(self, val : int):
-        self.stack[self.ipTas]=val
-        self.ipTas-=1
+        self.stack[self.ipTas] = val
+        self.ipTas -= 1
 
     def empilerIpTas(self):
         self.empilerAd(self.ip)
@@ -246,17 +293,25 @@ def parse_nilnovi_object_line(line: str) -> list[str | int]:
     return ret
 
 
-def run_vm(fn: str):
+def run_vm(fn: str, debug: bool = False):
     '''
     Running the vm using a file.
     '''
     
     with open(fn, 'r') as f:
         instructions = f.read()
-        vm = VM(instructions)
+        vm = VM(instructions, debug)
 
-        vm.run(debug=True)
+        vm.run()
 
 if __name__ == "__main__":
     from sys import argv
-    run_vm(argv[1])
+
+    print(argv)
+
+    if len(argv) == 3:
+        debug = bool(int(argv[2]))
+    else:
+        debug = True
+
+    run_vm(argv[1], debug)
