@@ -302,24 +302,27 @@ class VM:
 
     # ====== Operations
     def reserverBloc(self):
-        '''Stacking the base block at the end of stack, but what's the base block size ? '''
+        '''Stacking the base block at the end of stack'''
 
-        pass #TODO
+        self.stack.push(self.base)
+        self.stack.push(self.stack[self.base + 1])
 
     def retourConst(self):
         '''
         Make sur the instance of the object deliver a reference by the top of the stack
-        We didn't do the co change...
         '''
         
+        ar = self.stack[self.base + 1]
         newbase = self.stack[self.stack[self.base]]
         while(self.stack.ip >= self.base):
             self.stack.pop()
         self.base = newbase
+        self.co = ar
 
     def retourFonct(self):
         '''Return Fonction'''
 
+        ar = self.stack[self.base + 1]
         valeur = self.stack.summit()
         newbase = self.stack[self.stack[self.base]]
 
@@ -328,10 +331,13 @@ class VM:
 
         self.stack[self.stack.ip]=valeur
         self.base = newbase
+        self.co = ar
+
 
     def retourProc(self):
         '''Return Proc'''
 
+        ar = self.stack[self.base + 1]
         newbase = self.stack[self.stack[self.base]]
 
         while(self.stack.ip >= self.base):
@@ -339,20 +345,32 @@ class VM:
 
         self.stack.pop() #pop one more time becasue there isn't return value
         self.base = newbase
+        self.co = ar
 
 
-    def empilerParam(self):
-        '''To do'''
+    def empilerParam(self, ad: int):
+        '''handle effective parameters'''
 
-        pass
+        self.stack.push(self.stack[self.base + 2 + ad])
     
+    def traConstr(self, ad: int, nbP: int):
+        """_summary_
+
+        Args:
+            ad (int): starting addresss of the constructor.
+            nbP (int): number of parameters of the constructor.
+        """
+
+        prefixe = self.stack.ip - nbP - 2  # watch out for the index offset !!!
+        t = self.stack[prefixe]
+        self.stack[prefixe + 2] = self.co
+        self.co = ad
+        self.base = prefixe + 1
+
+        self.heap
+
     def traStat(self):
         '''To do '''
-
-        pass
-
-    def traConstr(self):
-        '''To do'''
 
         pass
 
