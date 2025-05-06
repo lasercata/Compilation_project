@@ -307,19 +307,39 @@ class VM:
         pass #TODO
 
     def retourConst(self):
-        '''To do'''
-
-        pass
+        '''
+        Make sur the instance of the object deliver a reference by the top of the stack
+        We didn't do the co change...
+        '''
+        
+        newbase = self.stack[self.stack[self.base]]
+        while(self.stack.ip >= self.base):
+            self.stack.pop()
+        self.base = newbase
 
     def retourFonct(self):
-        '''To do'''
+        '''Return Fonction'''
 
-        pass
+        valeur = self.stack.summit()
+        newbase = self.stack[self.stack[self.base]]
+
+        while(self.stack.ip >= self.base):
+            self.stack.pop()
+
+        self.stack[self.stack.ip]=valeur
+        self.base = newbase
 
     def retourProc(self):
-        '''To do'''
+        '''Return Proc'''
 
-        pass
+        newbase = self.stack[self.stack[self.base]]
+
+        while(self.stack.ip >= self.base):
+            self.stack.pop()
+
+        self.stack.pop() #pop one more time becasue there isn't return value
+        self.base = newbase
+
 
     def empilerParam(self):
         '''To do'''
