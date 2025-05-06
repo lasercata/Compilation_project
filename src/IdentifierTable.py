@@ -1,3 +1,6 @@
+from typing import Dict
+
+
 class IdentifierType:
 
     """This class is used to define the different types of identifiers."""
@@ -17,7 +20,7 @@ class IdentifierCarac:
         value: value of the identifier, default value None."""
         self.type = type
         self.name = name
-        #self.scope = scope
+        self.scope = scope
         self.address = address
         self.value = value
     
@@ -28,8 +31,8 @@ class IdentifierCarac:
     def __getType__(self, type):
         return self.type
 
-    """def __getScope__(self, scope):
-        return self.scope"""
+    def __getScope__(self, scope):
+        return self.scope
     
     def __getAddress__(self, address):
         return self.address
@@ -43,8 +46,8 @@ class IdentifierCarac:
     def __setType__(self, type):
         self.type = type
     
-    """xdef __setScope__(self, scope):
-        self.scope = scope"""
+    def __setScope__(self, scope):
+        self.scope = scope
     
     def __setAddress__(self, address):
         self.address = address
@@ -53,31 +56,43 @@ class IdentifierCarac:
         self.value = value
     
 class IdentifierTable:
+    
     """This class is meant to be used as a table for identifiers."""
     
     def __init__(self):
         """this method is used to initialize a table for identifiers."""
-        #TO DO 
+        self.__dict__: Dict[str, IdentifierCarac]={} #initializing the table as a dictionary containing the identifiers as keys and their characteristics as values.
+     
 
-    def addIdentifier(self, identifier: IdentifierCarac):
+    def addIdentifier(self, nom : str, carac: IdentifierCarac):
         """this method is used to add an identifier to the table."""
-        #TO DO
+        if nom not in self.__dict__:
+            self.__dict__[nom] = carac
+        else:
+            raise Exception("Identifier already exists")
+        
     
-    def deleteIdentifier(self, identifier: IdentifierCarac):
+    def deleteIdentifier(self, identifierName: str):
         """this method is used to delete an identifier from the table."""
-        #TO DO
+        if identifierName in self.__dict__:
+            del self.__dict__[identifierName]
+        else:
+            raise Exception("Identifier does not exist")
     
     def getIdentifier(self, name: str):
         """this method is used to get an identifier from the table."""
-        #TO DO
+        if name in self.__dict__:
+            return self.__dict__[name]
+        else:
+            raise Exception("Identifier does not exist")    
     
     def getTable(self):
         """this method is used to get the table."""
-        return self.table
+        return self.__dict__
     
     def printTable(self):
         """this method is used to print the table."""
-        for identifier in self.table:
+        for identifier in self.__dict__.values():
             print(identifier.name, identifier.type, identifier.scope, identifier.address, identifier.value, "\n")
     
     
