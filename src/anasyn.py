@@ -13,9 +13,13 @@ import logging
 #---Project
 try:
     import src.analex as analex
+    import src.compiler as compiler
 
 except ModuleNotFoundError:
     import analex
+    import compiler
+    
+comp = compiler.Compiler()
 
 ##-Init
 logger = logging.getLogger('anasyn')
@@ -45,9 +49,12 @@ def program(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser
     '''
 
+    # Point de génération de code : Début du programme
+    comp.debutProg()
     specifProgPrinc(lexical_analyser)
     lexical_analyser.acceptKeyword("is")
     corpsProgPrinc(lexical_analyser)
+    comp.finProg()
 
 def specifProgPrinc(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -89,15 +96,14 @@ def partieDecla(lexical_analyser: analex.LexicalAnalyser):
 
     - lexical_analyser : the lexical analyser.
     '''
-
     if lexical_analyser.isKeyword("procedure") or lexical_analyser.isKeyword("function") :
         listeDeclaOp(lexical_analyser)
 
         if not lexical_analyser.isKeyword("begin"):
             listeDeclaVar(lexical_analyser)
 
-        else:
-            listeDeclaVar(lexical_analyser)                
+    else:
+        listeDeclaVar(lexical_analyser)                
 
 def listeDeclaOp(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -682,6 +688,7 @@ def es(lexical_analyser: analex.LexicalAnalyser):
         lexical_analyser.acceptCharacter("(")
         expression(lexical_analyser)
         lexical_analyser.acceptCharacter(")")
+        comp.put()
         logger.debug("Call to put")
 
     else:
@@ -785,12 +792,12 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
         return
 
     # launch the analysis of the program
-    try:
-        lexical_analyser.init_analyser()
-        program(lexical_analyser)
+    #try:
+    lexical_analyser.init_analyser()
+    program(lexical_analyser)
 
-    except Exception as err:
-        print(f'Syntax error: {err}')
+    #except Exception as err:
+        # print(f'Syntax error: {err}')
 
     if show_ident_table:
         print("------ IDENTIFIER TABLE ------")
@@ -810,10 +817,13 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
         output_file = sys.stdout
 
     # Outputs the generated code to a file
-    #instrIndex = 0
-    #while instrIndex < codeGenerator.get_instruction_counter():
-    #        output_file.write("%s\n" % str(codeGenerator.get_instruction_at_index(instrIndex)))
-    #        instrIndex += 1
+    instructions_string = comp.instructions_to_string()
+    if instructions_string != '':
+        output_file.write(instructions_string)
+        logger.debug("Output file: " + fn_out)
+
+    else:
+        logger.debug("No instructions generated!")
 
     if fn_out != '':
         output_file.close() 

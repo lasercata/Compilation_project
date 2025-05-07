@@ -1,4 +1,4 @@
-from Compiler import Compiler
+from compiler import Compiler
 import analex
 
 test_lines = """Keyword 12      0       9       procedure
