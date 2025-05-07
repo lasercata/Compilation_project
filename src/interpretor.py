@@ -305,45 +305,48 @@ class VM:
         '''Stacking the base block at the end of stack'''
 
         self.stack.push(self.base)
-        self.stack.push(self.stack[self.base + 1])
+        self.stack.push(self.stack.get_value_at(self.base + 1))
 
-    def retourConst(self):
+    def retourConstr(self):
         '''
-        Make sur the instance of the object deliver a reference by the top of the stack
+        Make sure the instance of the object delivers a reference by the top of the stack.
         '''
         
-        ar = self.stack[self.base + 1]
-        newbase = self.stack[self.stack[self.base]]
+        ar = self.stack.get_value_at(self.base + 1)
+        newbase = self.stack.get_value_at(self.stack.get_value_at(self.base))
+
         while(self.stack.ip >= self.base):
             self.stack.pop()
+
         self.base = newbase
         self.co = ar
 
     def retourFonct(self):
-        '''Return Fonction'''
+        '''Return of a function. Ensures that the summit of the stack is the result of the call.'''
 
-        ar = self.stack[self.base + 1]
-        valeur = self.stack.summit()
-        newbase = self.stack[self.stack[self.base]]
+        ar = self.stack.get_value_at(self.base + 1)
+        value = self.stack.summit()
+        newbase = self.stack.get_value_at(self.stack.get_value_at(self.base))
 
         while(self.stack.ip >= self.base):
             self.stack.pop()
 
-        self.stack[self.stack.ip]=valeur
+        # self.stack[self.stack.ip]=value
+        self.stack.set_value_at(self.stack.ip, value)
         self.base = newbase
         self.co = ar
 
 
     def retourProc(self):
-        '''Return Proc'''
+        '''Return of a Procedure.'''
 
-        ar = self.stack[self.base + 1]
-        newbase = self.stack[self.stack[self.base]]
+        ar = self.stack.get_value_at(self.base + 1)
+        newbase = self.stack.get_value_at(self.stack.get_value_at(self.base))
 
         while(self.stack.ip >= self.base):
             self.stack.pop()
 
-        self.stack.pop() #pop one more time becasue there isn't return value
+        self.stack.pop() #pop one more time because there isn't return value
         self.base = newbase
         self.co = ar
 
@@ -351,23 +354,29 @@ class VM:
     def empilerParam(self, ad: int):
         '''handle effective parameters'''
 
-        self.stack.push(self.stack[self.base + 2 + ad])
+        self.stack.push(self.stack.get_value_at(self.base + 2 + ad))
     
     def traConstr(self, ad: int, nbP: int):
         """_summary_
 
         Args:
-            ad (int): starting addresss of the constructor.
+            ad (int): starting address of the constructor.
             nbP (int): number of parameters of the constructor.
         """
 
         prefixe = self.stack.ip - nbP - 2  # watch out for the index offset !!!
-        t = self.stack[prefixe]
-        self.stack[prefixe + 2] = self.co
+        t_addr = self.stack.get_value_at(prefixe)
+        t = self.heap.get_value_at(t_addr)
+
+        # self.stack[prefixe + 2] = self.co
+        self.stack.set_value_at(prefixe + 2, self.co - 1)
         self.co = ad
         self.base = prefixe + 1
 
-        self.heap
+        self.heap.push(t_addr)
+        self.stack.set_value_at(prefixe, self.heap.ip)
+        for _ in range(t):
+            self.heap.push(None) #TODO: is it really None, or we put a value here ?
 
     def traStat(self):
         '''To do '''
