@@ -96,8 +96,8 @@ def partieDecla(lexical_analyser: analex.LexicalAnalyser):
         if not lexical_analyser.isKeyword("begin"):
             listeDeclaVar(lexical_analyser)
 
-        else:
-            listeDeclaVar(lexical_analyser)                
+    else:
+        listeDeclaVar(lexical_analyser)                
 
 def listeDeclaOp(lexical_analyser: analex.LexicalAnalyser):
     '''
