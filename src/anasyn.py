@@ -42,6 +42,8 @@ def program(lexical_analyser: analex.LexicalAnalyser):
     '''
     Entry point of the grammar.
 
+    <program> -> <specifProgPrinc> is <corpsProgPrinc>
+
     - lexical_analyser : the lexical analyser
     '''
 
@@ -51,7 +53,7 @@ def program(lexical_analyser: analex.LexicalAnalyser):
 
 def specifProgPrinc(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description.
+    <specifProgPrinc> -> procedure <ident>
 
     - lexical_analyser : the lexical analyser
     '''
@@ -62,7 +64,7 @@ def specifProgPrinc(lexical_analyser: analex.LexicalAnalyser):
 
 def  corpsProgPrinc(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description.
+    <corpsProgPrinc> -> <partieDecla> begin <suiteInstr> end. | begin <suiteInstr> end.
 
     - lexical_analyser : the lexical analyser
     '''
@@ -85,7 +87,7 @@ def  corpsProgPrinc(lexical_analyser: analex.LexicalAnalyser):
 
 def partieDecla(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <partieDecla> -> <listeDeclaOp> <listeDeclaVar> | <listeDeclaVar> | <listeDeclaOp>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -101,7 +103,7 @@ def partieDecla(lexical_analyser: analex.LexicalAnalyser):
 
 def listeDeclaOp(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <listeDeclaOp> -> <declaOp> ; <listeDeclaOp> | <declaOp> ;
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -114,7 +116,7 @@ def listeDeclaOp(lexical_analyser: analex.LexicalAnalyser):
 
 def declaOp(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <declaOp> -> <fonction> | <procedure>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -127,7 +129,7 @@ def declaOp(lexical_analyser: analex.LexicalAnalyser):
 
 def procedure(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <procedure> -> procedure <ident> <partieFormelle> is <corpsProc>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -141,10 +143,9 @@ def procedure(lexical_analyser: analex.LexicalAnalyser):
     lexical_analyser.acceptKeyword("is")
     corpsProc(lexical_analyser)
 
-
 def fonction(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <fonction> -> function <ident> <partieFormelle> return <type> is <corpsFonct>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -163,7 +164,7 @@ def fonction(lexical_analyser: analex.LexicalAnalyser):
 
 def corpsProc(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <corpsProc> -> <partieDeclaProc> begin <suiteInstrNonVide> end | begin <suiteInstrNonVide> end
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -177,7 +178,7 @@ def corpsProc(lexical_analyser: analex.LexicalAnalyser):
 
 def corpsFonct(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <corpsFonct> -> <partieDeclaProc> begin <suiteInstrNonVide> end | begin <suiteInstrNonVide> end
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -191,7 +192,7 @@ def corpsFonct(lexical_analyser: analex.LexicalAnalyser):
 
 def partieFormelle(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <partieFormelle> -> ( <listeSpecifFormelles> ) | ()
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -205,7 +206,7 @@ def partieFormelle(lexical_analyser: analex.LexicalAnalyser):
 
 def listeSpecifFormelles(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <listeSpecifFormelles> -> <specif> ; <listeSpecifFormelles> | <specif>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -218,7 +219,7 @@ def listeSpecifFormelles(lexical_analyser: analex.LexicalAnalyser):
 
 def specif(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <specif> -> <listeIdent> : <mode> <type> | <listeIdent> : <type>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -233,7 +234,7 @@ def specif(lexical_analyser: analex.LexicalAnalyser):
 
 def mode(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <mode> -> in | in out
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -249,7 +250,7 @@ def mode(lexical_analyser: analex.LexicalAnalyser):
 
 def nnpType(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <type> -> integer | boolean
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -268,7 +269,7 @@ def nnpType(lexical_analyser: analex.LexicalAnalyser):
 
 def partieDeclaProc(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <partieDeclaProc> -> <listeDeclaVar>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -277,7 +278,7 @@ def partieDeclaProc(lexical_analyser: analex.LexicalAnalyser):
 
 def listeDeclaVar(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <listeDeclaVar> -> <declaVar> <listeDeclaVar> | <declaVar>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -289,7 +290,7 @@ def listeDeclaVar(lexical_analyser: analex.LexicalAnalyser):
 
 def declaVar(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <declaVar> -> <listeIdent> : <type> ;
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -302,7 +303,7 @@ def declaVar(lexical_analyser: analex.LexicalAnalyser):
 
 def listeIdent(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <listeIdent> -> <ident>, <listeIdent> | <ident>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -316,7 +317,7 @@ def listeIdent(lexical_analyser: analex.LexicalAnalyser):
 
 def suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <suiteInstrNonVide> -> <instr> ; <suiteInstrNonVide> | <instr>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -329,7 +330,7 @@ def suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser):
 
 def suiteInstr(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <suiteInstr> -> <suiteInstrNonVide> | epsilon
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -339,7 +340,7 @@ def suiteInstr(lexical_analyser: analex.LexicalAnalyser):
 
 def instr(lexical_analyser: analex.LexicalAnalyser):        
     '''
-    TODO: description
+    <instr> -> <affectation> | <boucle> | <altern> | <es> | <retour> | <appelProc>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -383,7 +384,7 @@ def instr(lexical_analyser: analex.LexicalAnalyser):
 
 def listePe(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <listePe> -> <expression>, <listePe> | <expression>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -396,7 +397,7 @@ def listePe(lexical_analyser: analex.LexicalAnalyser):
 
 def expression(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <expression> -> <expression> or <exp1> | <exp1>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -411,7 +412,7 @@ def expression(lexical_analyser: analex.LexicalAnalyser):
 
 def exp1(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <exp1> -> <exp1> and <exp2> | <exp2>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -426,7 +427,7 @@ def exp1(lexical_analyser: analex.LexicalAnalyser):
 
 def exp2(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <exp2> -> <exp2> <opRel> <exp3> | <exp3>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -450,7 +451,7 @@ def exp2(lexical_analyser: analex.LexicalAnalyser):
 
 def opRel(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <opRel> -> = | /= | < | <= | > | >=
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -482,7 +483,7 @@ def opRel(lexical_analyser: analex.LexicalAnalyser):
 
 def exp3(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <exp3> -> <exp3> <opAd> <exp4> | <exp4>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -496,7 +497,7 @@ def exp3(lexical_analyser: analex.LexicalAnalyser):
 
 def opAdd(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <opAdd> -> + | -
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -516,7 +517,7 @@ def opAdd(lexical_analyser: analex.LexicalAnalyser):
 
 def exp4(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <exp4> -> <exp4> <opMult> <prim> | <prim>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -531,7 +532,7 @@ def exp4(lexical_analyser: analex.LexicalAnalyser):
 
 def opMult(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <opMult> -> * | /
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -551,7 +552,7 @@ def opMult(lexical_analyser: analex.LexicalAnalyser):
 
 def prim(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <prim> -> <opUnaire> <elemPrim> | <elemPrim>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -565,7 +566,7 @@ def prim(lexical_analyser: analex.LexicalAnalyser):
 
 def opUnaire(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <opUnaire> -> + | - | not
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -588,7 +589,9 @@ def opUnaire(lexical_analyser: analex.LexicalAnalyser):
 
 def elemPrim(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <elemPrim> -> <valeur> | ( <expression> ) | <ident> | <appelFonct>
+
+    Note that <appelFonct> is implemented here (and not in a separate function)
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -626,7 +629,7 @@ def elemPrim(lexical_analyser: analex.LexicalAnalyser):
 
 def valeur(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <valeur> -> <entier> | <valBool>
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -646,7 +649,7 @@ def valeur(lexical_analyser: analex.LexicalAnalyser):
 
 def valBool(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <valBool> -> true | false
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -657,13 +660,13 @@ def valBool(lexical_analyser: analex.LexicalAnalyser):
 
     else:
         logger.debug("boolean false value")
-        lexical_analyser.acceptKeyword("false")    
+        lexical_analyser.acceptKeyword("false")
 
     return "boolean"
 
 def es(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <es> -> get ( <ident> ) | put ( <expression> )
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -690,7 +693,7 @@ def es(lexical_analyser: analex.LexicalAnalyser):
 
 def boucle(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <boucle> -> while <expression> loop <suiteInstr> end
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -708,7 +711,7 @@ def boucle(lexical_analyser: analex.LexicalAnalyser):
 
 def altern(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <altern> -> if <expression> then <suiteInstr> end | if <expression> then <suiteInstr> else <suiteInstr> end
 
     - lexical_analyser : the lexical analyser.
     '''
@@ -730,7 +733,7 @@ def altern(lexical_analyser: analex.LexicalAnalyser):
 
 def retour(lexical_analyser: analex.LexicalAnalyser):
     '''
-    TODO: description
+    <retour> -> return <expression>
 
     - lexical_analyser : the lexical analyser.
     '''
