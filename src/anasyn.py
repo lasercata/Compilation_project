@@ -50,11 +50,11 @@ def program(lexical_analyser: analex.LexicalAnalyser):
     '''
 
     # Point de génération de code : Début du programme
-    comp.debutProg()
+    comp.add_instruction('debutProg')
     specifProgPrinc(lexical_analyser)
     lexical_analyser.acceptKeyword("is")
     corpsProgPrinc(lexical_analyser)
-    comp.finProg()
+    comp.add_instruction('finProg')
 
 def specifProgPrinc(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -263,10 +263,12 @@ def nnpType(lexical_analyser: analex.LexicalAnalyser):
     if lexical_analyser.isKeyword("integer"):
         lexical_analyser.acceptKeyword("integer")
         logger.debug("integer type")
+        comp.add_instruction('reserver', 1)
 
     elif lexical_analyser.isKeyword("boolean"):
         lexical_analyser.acceptKeyword("boolean")
-        logger.debug("boolean type")                
+        logger.debug("boolean type")
+        comp.add_instruction('reserver', 1)
 
     else:
         logger.error("Unknown type found <"+ lexical_analyser.get_value() +">!")
@@ -429,6 +431,7 @@ def exp1(lexical_analyser: analex.LexicalAnalyser):
     if lexical_analyser.isKeyword("and"):
         lexical_analyser.acceptKeyword("and")
         exp2(lexical_analyser)
+        comp.add_instruction("et")
 
 def exp2(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -465,21 +468,27 @@ def opRel(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isSymbol("<"):
         lexical_analyser.acceptSymbol("<")
+        comp.add_instruction("inf")
 
     elif lexical_analyser.isSymbol("<="):
         lexical_analyser.acceptSymbol("<=")
+        comp.add_instruction("infegal")
 
     elif lexical_analyser.isSymbol(">"):
         lexical_analyser.acceptSymbol(">")
+        comp.add_instruction("sup")
 
     elif lexical_analyser.isSymbol(">="):
         lexical_analyser.acceptSymbol(">=")
+        comp.add_instruction("supeg")
 
     elif lexical_analyser.isSymbol("="):
         lexical_analyser.acceptSymbol("=")
+        comp.add_instruction("egal")
 
     elif lexical_analyser.isSymbol("/="):
         lexical_analyser.acceptSymbol("/=")
+        comp.add_instruction("diff")
 
     else:
         msg = "Unknown relationnal operator <"+ lexical_analyser.get_value() +">!"
@@ -511,9 +520,11 @@ def opAdd(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isCharacter("+"):
         lexical_analyser.acceptCharacter("+")
+        comp.add_instruction('add')
 
     elif lexical_analyser.isCharacter("-"):
         lexical_analyser.acceptCharacter("-")
+        comp.add_instruction('sous')
 
     else:
         msg = "Unknown additive operator <"+ lexical_analyser.get_value() +">!"
@@ -546,9 +557,11 @@ def opMult(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isCharacter("*"):
         lexical_analyser.acceptCharacter("*")
+        comp.add_instruction('mult')
 
     elif lexical_analyser.isCharacter("/"):
         lexical_analyser.acceptCharacter("/")
+        comp.add_instruction('div')
 
     else:
         msg = "Unknown multiplicative operator <"+ lexical_analyser.get_value() +">!"
@@ -583,9 +596,11 @@ def opUnaire(lexical_analyser: analex.LexicalAnalyser):
 
     elif lexical_analyser.isCharacter("-"):
         lexical_analyser.acceptCharacter("-")
+        comp.add_instruction('moins')
 
     elif lexical_analyser.isKeyword("not"):
         lexical_analyser.acceptKeyword("not")
+        comp.add_instruction('non')
 
     else:
         msg = "Unknown additive operator <"+ lexical_analyser.get_value() +">!"
@@ -640,6 +655,7 @@ def valeur(lexical_analyser: analex.LexicalAnalyser):
     if lexical_analyser.isInteger():
         entier = lexical_analyser.acceptInteger()
         logger.debug("integer value: " + str(entier))
+        comp.add_instruction("empiler",entier)
         return "integer"
 
     elif lexical_analyser.isKeyword("true") or lexical_analyser.isKeyword("false"):
@@ -660,10 +676,12 @@ def valBool(lexical_analyser: analex.LexicalAnalyser):
     if lexical_analyser.isKeyword("true"):
         lexical_analyser.acceptKeyword("true")    
         logger.debug("boolean true value")
+        comp.add_instruction("empiler",1)
 
     else:
         logger.debug("boolean false value")
-        lexical_analyser.acceptKeyword("false")    
+        lexical_analyser.acceptKeyword("false")
+        comp.add_instruction("empiler", 0)
 
     return "boolean"
 
@@ -681,6 +699,7 @@ def es(lexical_analyser: analex.LexicalAnalyser):
         lexical_analyser.acceptCharacter("(")
         ident = lexical_analyser.acceptIdentifier()
         lexical_analyser.acceptCharacter(")")
+        comp.add_instruction('get')
         logger.debug("Call to get "+ident)
 
     elif lexical_analyser.isKeyword("put"):
@@ -688,7 +707,7 @@ def es(lexical_analyser: analex.LexicalAnalyser):
         lexical_analyser.acceptCharacter("(")
         expression(lexical_analyser)
         lexical_analyser.acceptCharacter(")")
-        comp.put()
+        comp.add_instruction('put')
         logger.debug("Call to put")
 
     else:
@@ -705,10 +724,22 @@ def boucle(lexical_analyser: analex.LexicalAnalyser):
     logger.debug("parsing while loop: ")
     lexical_analyser.acceptKeyword("while")
 
-    expression(lexical_analyser)
-
+    # Compiling the beginning of the while loop (condition)
+    ad1 = comp.get_current_address() + 1 # ad1
+    expression(lexical_analyser) # compile condition
+    
     lexical_analyser.acceptKeyword("loop")
+    
+    # Adding tze jump, with a placeholder for the address
+    comp.add_instruction('tze', None)
+    tze_addr = comp.get_current_address()
+    
+    # Compiling the loop body
     suiteInstr(lexical_analyser)
+    
+    comp.add_instruction("tra", ad1)
+    ad2 = comp.get_current_address() + 1
+    comp.set_instruction_args(tze_addr, (ad2,))
 
     lexical_analyser.acceptKeyword("end")
     logger.debug("end of while loop ")
@@ -817,7 +848,7 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
         output_file = sys.stdout
 
     # Outputs the generated code to a file
-    instructions_string = comp.instructions_to_string()
+    instructions_string = str(comp)
     if instructions_string != '':
         output_file.write(instructions_string)
         logger.debug("Output file: " + fn_out)

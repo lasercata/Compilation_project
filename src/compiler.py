@@ -30,6 +30,28 @@ class Compiler:
     
         self.instructions.append([name, args])
     
+    def get_current_address(self) -> int:
+        '''Get the current address of the instruction list.'''
+
+        return len(self.instructions) - 1
+    
+    def set_instruction_args(self, addr: int, arguments: tuple):
+        '''
+        Set the arguments of the instruction at address `addr` to `arguments`.
+
+        Args:
+            addr      : the address of the instruction to modify.
+            arguments : the new arguments of the instruction.
+        
+        Raises:
+            ValueError : if the address is out of range.
+        '''
+
+        if addr < 0 or addr >= len(self.instructions):
+            raise ValueError(f'Compiler: set_instruction_args: address {addr} is out of range')
+
+        self.instructions[addr][1] = arguments
+    
     def __str__(self) -> str:
         '''Convert the instruction list to a string usable by the interpretor.'''
 
