@@ -401,7 +401,7 @@ class VM:
         '''doing '''
       
         baseBloc = self.stack.ip - nbp - 1 #  TODO :  watch out for the index offset !!!
-        print("a :",a,"nbp :",nbp,"basebloc :",baseBloc,"self.co:",self.co)
+        #print("a :",a,"nbp :",nbp,"basebloc :",baseBloc,"self.co:",self.co)
         self.base = baseBloc
         self.stack.set_value_at(baseBloc + 1, self.co + 1)
         self.co = a - 1
@@ -428,7 +428,7 @@ class VM:
         if hasattr(self, nom_instr):
             method = getattr(self, nom_instr)
             if len(instruction) > 1:
-                print(*instruction[1:])
+                #print(*instruction[1:])
                 method(*instruction[1:])
             else:
                 method()
@@ -444,30 +444,30 @@ class VM:
     
         last_line = len(self.instructions)
 
-        # try:
-        while self.co < last_line:
-            inst = self.instructions[self.co]
-            parsed_instr = parse_nilnovi_object_line(inst)
+        try:
+            while self.co < last_line:
+                inst = self.instructions[self.co]
+                parsed_instr = parse_nilnovi_object_line(inst)
 
-            if self.debug:
-                print(f'Stack       : {self.stack}')
-                print(f'Heap        : {self.heap}')
-                print(f'Instr ptr   : {self.co}')
-                print(f'Base ptr    : {self.base}')
-                print(f'Instruction : {parsed_instr}')
-                print()
+                if self.debug:
+                    print(f'Stack       : {self.stack}')
+                    print(f'Heap        : {self.heap}')
+                    print(f'Instr ptr   : {self.co}')
+                    print(f'Base ptr    : {self.base}')
+                    print(f'Instruction : {parsed_instr}')
+                    print()
 
-            self.execute_instruction(parsed_instr)
-            self.co += 1
+                self.execute_instruction(parsed_instr)
+                self.co += 1
 
-        # except Exception as e:
-        #     if str(e) == 'Program ended':
-        #         if self.debug:
-        #             print('Program finished.')
+        except Exception as e:
+            if str(e) == 'Program ended':
+                if self.debug:
+                    print('Program finished.')
 
-        #         return
+                return
 
-        #     print(f'Exception: {e}')
+            print(f'Exception: {e}')
        
 
 ##-Stack
@@ -617,8 +617,6 @@ def parse_nilnovi_object_line(line: str) -> list[str | int]:
     args = arguments_str.split(',')
     for arg in args: 
         ret.append(int(arg))
-
-    print(ret)
 
     return ret
 
