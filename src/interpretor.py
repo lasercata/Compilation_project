@@ -9,22 +9,32 @@ from typing import Any
 
 ##-Interpretor
 class VM: 
-    '''Class defining the interpretor of the object code.'''
+    """Class defining the interpretor of the object code.
+
+    Raises:
+        Exception: _description_
+        Exception: _description_
+        ValueError: _description_
+
+    Returns:
+        _type_: _description_
+    """
 
     def __init__(self, object_code: str, debug: bool = False):
-        '''
-        Constructor of the class.
+        """Constructor of the class.
 
-        - object_code : the instructions (in object nilnovi) ;
-        - debug       : boolean indicating if printing debug variables.
-        '''
+        Args:
+            object_code (str): the instructions (in object nilnovi.
+            debug (bool, optional): boolean indicating if printing debug variables. Defaults to False.
+        """
 
         self.instructions = object_code.split('\n')
         self.debug = debug
 
     # ====== Init
     def debutProg(self):
-        '''Initialises the variables of the program.'''
+        """Initialises the variables of the program.
+        """
 
         # self.stack = []
         self.stack = Stack()
@@ -41,28 +51,37 @@ class VM:
 
     # ====== Stack operations
     def reserver(self, n: int):
-        '''Reserve n places, supposed the heap was far away from the stack '''
+        """Reserve n places, supposed the heap was far away from the stack
+
+        Args:
+            n (int): number of cells to reserve.
+        """
 
         for _ in range(0, n):
             self.stack.push(None)
 
     def empiler(self, val: int):
-        '''Pushes `val` to the summit of the stack.'''
+        """Pushes `val` to the summit of the stack.
+
+        Args:
+            val (int): the value to push.
+        """
 
         self.stack.push(val)
 
     def empilerAd(self, addr: int):
-        '''
-        Pushes the element at address `self.base + addr` to the summit of the stack.
-        '''
+        """Pushes the element at address `self.base + addr` to the summit of the stack.
+
+        Args:
+            addr (int): distance from self.base.
+        """
 
         self.empiler(self.stack.get_value_at(addr + self.base))
 
     def affectation(self):
-        '''
-        Places the value at the summit at the address designated by the value under the summit.
+        """Places the value at the summit at the address designated by the value under the summit.
         Pops the two top elements from the stack.
-        '''
+        """
 
         value = self.stack.pop()
         addr = self.stack.pop()
@@ -70,9 +89,8 @@ class VM:
         self.stack.set_value_at(addr, value)
 
     def valeurPile(self):
-        '''
-        Replaces the summit of the stack by the elements designated by the current element on the summit of the stack.
-        '''
+        """Replaces the summit of the stack by the elements designated by the current element on the summit of the stack.
+        """
 
         addr = self.stack.pop()
         value = self.stack.get_value_at(addr)
@@ -80,31 +98,31 @@ class VM:
 
     # ====== IO operations
     def get(self):
-        '''
-        Reads input from user, and write it to the address designated by the summit of the stack.
+        """Reads input from user, and write it to the address designated by the summit of the stack.
         Pops the summit.
-        '''
+        """
 
         addr = self.stack.pop()
         self.stack.set_value_at(addr, input('>'))
 
     def put(self):
-        '''Prints the summit of the stack, after pop it.'''
+        """Prints the summit of the stack, after pop it.
+        """
 
         print(self.stack.pop())
 
     # ====== Arithmetic operations
     def moins(self):
-        '''Unary operation, calculates the opposite of the summit of the stack and replace it.'''
+        """Unary operation, calculates the opposite of the summit of the stack and replace it.
+        """
 
         value = self.stack.pop()
         self.stack.push(-value)
 
     def sous(self):
-        '''
-        Substraction.
+        """Substraction.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 - op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -112,10 +130,9 @@ class VM:
         self.stack.push(op1 - op2)
 
     def add(self):
-        '''
-        Addition.
+        """Addition.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 + op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -123,10 +140,9 @@ class VM:
         self.stack.push(op1 + op2)
 
     def mult(self):
-        '''
-        Multiplication.
+        """Multiplication.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 * op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -134,10 +150,9 @@ class VM:
         self.stack.push(op1 * op2)
 
     def div(self):
-        '''
-        Division.
+        """Division.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 / op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -146,10 +161,9 @@ class VM:
 
     # ====== Boolean operations
     def egal(self):
-        '''
-        Equality test.
+        """Equality test.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 == op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -157,10 +171,9 @@ class VM:
         self.stack.push(op1 == op2)
 
     def diff(self):
-        '''
-        Difference test.
+        """Difference test.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 != op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -168,10 +181,9 @@ class VM:
         self.stack.push(op1 != op2)
 
     def inf(self):
-        '''
-        Strict inferiority test.
+        """Strict inferiority test.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 < op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -179,10 +191,9 @@ class VM:
         self.stack.push(op1 < op2)
 
     def infeg(self):
-        '''
-        Inferiority test.
+        """Inferiority test.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 <= op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -190,10 +201,9 @@ class VM:
         self.stack.push(op1 <= op2)
 
     def sup(self):
-        '''
-        Strict superiority test.
+        """Strict superiority test.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 > op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -201,10 +211,9 @@ class VM:
         self.stack.push(op1 > op2)
 
     def supeg(self):
-        '''
-        Superiority test.
+        """Superiority test.
         Pop `op2` and `op1` from the summit of the stack, and push `op1 >= op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -212,10 +221,9 @@ class VM:
         self.stack.push(op1 >= op2)
 
     def et(self):
-        '''
-        AND boolean operation
+        """AND boolean operation
         Pop `op2` and `op1` from the summit of the stack, and push `op1 AND op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -223,10 +231,9 @@ class VM:
         self.stack.push(op1 and op2)
 
     def ou(self):
-        '''
-        OR boolean operation
+        """OR boolean operation
         Pop `op2` and `op1` from the summit of the stack, and push `op1 OR op2`.
-        '''
+        """
 
         op2 = self.stack.pop()
         op1 = self.stack.pop()
@@ -234,10 +241,9 @@ class VM:
         self.stack.push(op1 or op2)
 
     def non(self):
-        '''
-        NOT boolean operation
+        """NOT boolean operation
         Pop `op1` from the summit of the stack, and push `NOT op1`.
-        '''
+        """
 
         op1 = self.stack.pop()
 
@@ -246,8 +252,7 @@ class VM:
 
     # ====== Goto operations
     def tra(self, addr: int):
-        '''
-        Jumps to the line `addr` in the instruction list (goto).
+        """Jumps to the line `addr` in the instruction list (goto).
 
         The compiled code suppose that the lines are in range [|1 ; n|].
         In the internal representation, the instructions are in range [|0 ; n - 1|].
@@ -255,17 +260,18 @@ class VM:
         But the `self.co` is going to be incremented in the `run` method. So `-1` again.
         This is the reason of the `-2`.
 
-        - addr : the line to jump to.
-        '''
+        Args:
+            addr (int): the line to jump to.
+        """
 
         self.co = addr - 2
 
     def tze(self, addr: int):
-        '''
-        Checks the value at the summit of the stack, and if it is `False`, changes `self.co` to point to the instruction at line `addr`.
+        """Checks the value at the summit of the stack, and if it is `False`, changes `self.co` to point to the instruction at line `addr`.
 
-        - addr : the line to jump to in the object instructions, if the summit of the stack is `False`.
-        '''
+        Args:
+            addr (int): the line to jump to in the object instructions, if the summit of the stack is `False`.
+        """
 
         if not self.stack.pop():
             self.tra(addr)
@@ -279,38 +285,45 @@ class VM:
 
     # ====== Heap operations
     def empilerTas(self, val : int):
-        '''Pushes `val` to the heap.'''
+        """Pushes `val` to the heap.
+
+        Args:
+            val (int): value to push.
+        """
 
         self.heap.push(val)
 
     def empilerIpTas(self):
-        '''Pushes to the stack, the current address of the summit of the heap.'''
+        """Pushes to the stack, the current address of the summit of the heap.
+        """
 
         heap_summit_addr = self.heap.ip # ipTas
         self.stack.push(heap_summit_addr)
 
     def empilerAdAt(self, v : int):
-        '''
-        Pushes to the stack, the address of the attribute #`v` in the stack.
+        """Pushes to the stack, the address of the attribute #`v` in the stack.
 
         The start of the object in the heap is found at address `self.base - 1` in the stack.
         So the address to push to the stack is `heap[self.base - 1] + v`.
-        '''
+
+        Args:
+            v (int): offset.
+        """
         
         obj_start_addr = self.stack.get_value_at(self.base - 1)
         self.stack.push(obj_start_addr + v)
 
     # ====== Operations
     def reserverBloc(self):
-        '''Stacking the base block at the end of stack'''
+        """Stacking the base block at the end of stack.
+        """
 
         self.stack.push(self.base)
         self.stack.push(self.stack.get_value_at(self.base + 1))
 
     def retourConstr(self):
-        '''
-        Make sure the instance of the object delivers a reference by the top of the stack.
-        '''
+        """Make sure the instance of the object delivers a reference by the top of the stack.
+        """
         
         ar = self.stack.get_value_at(self.base + 1)
         newbase = self.stack.get_value_at(self.stack.get_value_at(self.base))
@@ -322,7 +335,8 @@ class VM:
         self.co = ar
 
     def retourFonct(self):
-        '''Return of a function. Ensures that the summit of the stack is the result of the call.'''
+        """Return of a function. Ensures that the summit of the stack is the result of the call.
+        """
 
         ar = self.stack.get_value_at(self.base + 1)
         value = self.stack.summit()
@@ -338,7 +352,8 @@ class VM:
 
 
     def retourProc(self):
-        '''Return of a Procedure.'''
+        """Return of a Procedure.
+        """
 
         ar = self.stack.get_value_at(self.base + 1)
         newbase = self.stack.get_value_at(self.stack.get_value_at(self.base))
@@ -346,13 +361,17 @@ class VM:
         while(self.stack.ip >= self.base):
             self.stack.pop()
 
-        self.stack.pop() #pop one more time because there isn't return value
+        self.stack.pop() # pop one more time because there isn't return value
         self.base = newbase
         self.co = ar
 
 
     def empilerParam(self, ad: int):
-        '''handle effective parameters'''
+        """Handle effective parameters.
+
+        Args:
+            ad (int): address where to push.
+        """
 
         self.stack.push(self.stack.get_value_at(self.base + 2 + ad))
     
@@ -391,7 +410,14 @@ class VM:
 
     # ====== Execution
     def execute_instruction(self, instruction):
-        '''Execute an instruction Nilnovi'''
+        """Execute an instruction Nilnovi
+
+        Args:
+            instruction (_type_): Nilnovi instruction.
+
+        Raises:
+            ValueError: Unknow instruction.
+        """
 
         nom_instr = instruction[0]
 
@@ -405,7 +431,8 @@ class VM:
             raise ValueError(f"Unknown instruction: {nom_instr}")
 
     def run(self):
-        '''Runs the program.'''
+        """Runs the program.
+        """
 
         self.debutProg()
         self.co = 0
@@ -439,30 +466,44 @@ class VM:
 
 ##-Stack
 class Stack:
-    '''Defines a stack'''
+    """Defines a stack.
+
+    Raises:
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+        ValueError: _description_
+
+    Returns:
+        _type_: _description_
+    """
 
     def __init__(self):
-        '''Initiates the stack'''
+        """Initiates the stack.
+        """
 
         self.stack = [] # The stack structure
         self.ip = -1 # a pointer to the summit of the stack (last element of the list self.stack).
 
     def push(self, v: Any) -> None:
-        '''
-        Pushes the element `v` to the stack.
+        """Pushes the element `v` to the stack.
 
-        - v : the element to push.
-        '''
+        Args:
+            v (Any): the element to push.
+        """
     
         self.stack.append(v)
         self.ip += 1
 
     def pop(self) -> Any:
-        '''
-        Removes the summit of the stack and return it.
+        """Removes the summit of the stack and return it.
 
-        Raises a ValueError if the stack is empty.
-        '''
+        Raises:
+            ValueError: if the stack is empty.
+
+        Returns:
+            Any: _description_
+        """
     
         if self.ip == -1:
             raise ValueError('Cannot pop an empty stack !')
@@ -474,11 +515,14 @@ class Stack:
         return ret
 
     def summit(self) -> Any:
-        '''
-        Returns the element at the summit of the stack.
+        """Returns the element at the summit of the stack.
 
-        If the stack is empty, raises a ValueError.
-        '''
+        Raises:
+            ValueError: if the stack is empty.
+
+        Returns:
+            Any: summit of the stack.
+        """
     
         if self.ip == -1:
             raise ValueError('Cannot get the summit of an empty stack !')
@@ -486,8 +530,7 @@ class Stack:
         return self.stack[self.ip]
 
     def get_value_at(self, addr: int) -> Any:
-        '''
-        Returns the value at the address `addr`.
+        """Returns the value at the address `addr`.
         The addresses are in `[|0 ; ip|]`, where `ip` is the address of the summit of the stack :
 
             ^
@@ -499,10 +542,15 @@ class Stack:
             1
             0
 
-        - addr : the address of the element to retreive.
+        Args:
+            addr (int): the address of the element to retreive.
 
-        If `addr` is not in the range, raises a ValueError.
-        '''
+        Raises:
+            ValueError: if `addr` is not in the range.
+
+        Returns:
+            Any: value at the address `addr`.
+        """
 
         if addr < 0 or self.ip < addr:
             raise ValueError(f'Stack: impossible to get value at address {addr}: out of bounds')
@@ -510,13 +558,15 @@ class Stack:
         return self.stack[addr]
 
     def set_value_at(self, addr: int, v: Any):
-        '''
-        Sets the value at `addr` to `v`.
-        Raises a ValueError if `addr` is out of bounds.
+        """Sets the value at `addr` to `v`.
 
-        - v    : the value to set ;
-        - addr : the address. Should be in the range described in `get_value_at`.
-        '''
+        Args:
+            addr (int): address of the cell.
+            v (Any): new value of the cell.
+
+        Raises:
+            ValueError: if `addr` is out of bounds.
+        """
 
         if addr < 0 or self.ip < addr:
             raise ValueError(f'Stack: impossible to set value at address {addr}: out of bounds')
@@ -524,7 +574,11 @@ class Stack:
         self.stack[addr] = v
 
     def __repr__(self) -> str:
-        '''Returns the representation of the stack.'''
+        """Returns the representation of the stack.
+
+        Returns:
+            str: representation of the stack
+        """
     
         return str(self.stack) #TODO: make a better representation ?
 
@@ -533,12 +587,17 @@ class Stack:
 
 ##-Functions
 def parse_nilnovi_object_line(line: str) -> list[str | int]:
-    '''
-    Parse a line of a nilnovi (object) line.
+    """Parse a line of a Nilnovi (object) line.
 
     Example :
     reserver(2) -> ['reserver', 2]
-    '''
+
+    Args:
+        line (str): Nilnovi object line.
+
+    Returns:
+        list[str | int]: parsed line.
+    """
 
     ret = []
     line = line.strip('\n')
@@ -553,9 +612,12 @@ def parse_nilnovi_object_line(line: str) -> list[str | int]:
 
 
 def run_vm_from_file(fn: str, debug: bool = False):
-    '''
-    Running the vm using a file.
-    '''
+    """Running the vm using a file.
+
+    Args:
+        fn (str): file to read.
+        debug (bool, optional): debug option. Defaults to False.
+    """
     
     with open(fn, 'r') as f:
         instructions = f.read()
