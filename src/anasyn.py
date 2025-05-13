@@ -27,7 +27,7 @@ logger = logging.getLogger('anasyn')
 DEBUG = False
 LOGGING_LEVEL = logging.DEBUG
 
-table = {}
+idTable = IdentifierTable.init()
 
 ##-Code
 class AnaSynException(Exception):
@@ -63,7 +63,7 @@ def specifProgPrinc(lexical_analyser: analex.LexicalAnalyser):
 
     lexical_analyser.acceptKeyword("procedure")
     ident = lexical_analyser.acceptIdentifier()
-    table.addIdentifier(ident, IdentifierCarac("procedure",ident, "global", 0, 0)) #Ajout dans la table des identificateurs
+    idTable.addIdentifier(ident, IdentifierCarac("procedure",ident, "global", 0, 0)) #Ajout dans la table des identificateurs
     logger.debug("Name of program : " + ident)
 
 def corpsProgPrinc(lexical_analyser: analex.LexicalAnalyser):
@@ -140,7 +140,7 @@ def procedure(lexical_analyser: analex.LexicalAnalyser):
 
     lexical_analyser.acceptKeyword("procedure")
     ident = lexical_analyser.acceptIdentifier()
-    table.addIdentifier(ident, IdentifierCarac("procedure",ident, "local", 0, 0)) #Ajout dans la table des identificateurs
+    idTable.addIdentifier(ident, IdentifierCarac("procedure",ident, "local", 0, 0)) #Ajout dans la table des identificateurs
     logger.debug("Name of procedure : "+ident)
 
     partieFormelle(lexical_analyser)
@@ -158,7 +158,7 @@ def fonction(lexical_analyser: analex.LexicalAnalyser):
 
     lexical_analyser.acceptKeyword("function")
     ident = lexical_analyser.acceptIdentifier()
-    table.addIdentifier(ident, IdentifierCarac("function",ident, "local", 0, 0)) #Ajout dans la table des identificateurs
+    idTable.addIdentifier(ident, IdentifierCarac("function",ident, "local", 0, 0)) #Ajout dans la table des identificateurs
     logger.debug("Name of function : "+ident)
 
     partieFormelle(lexical_analyser)
@@ -264,11 +264,16 @@ def nnpType(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isKeyword("integer"):
         lexical_analyser.acceptKeyword("integer")
-        
+        for key, value in idTable.__dict__.items():
+            if value.type == "NONE":
+                idTable.__dict__[key].type = "integer"
         logger.debug("integer type")
 
     elif lexical_analyser.isKeyword("boolean"):
         lexical_analyser.acceptKeyword("boolean")
+        for key, value in idTable.__dict__.items():
+            if value.type == "NONE":
+                idTable.__dict__[key].type = "boolean" 
         logger.debug("boolean type")                
 
     else:
@@ -318,7 +323,7 @@ def listeIdent(lexical_analyser: analex.LexicalAnalyser):
 
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("identifier found: "+str(ident))
-    table.addIdentifier(ident, IdentifierCarac("NONE", ident, "local", 0, 0)) #Ajout dans la table des identificateurs
+    idTable.addIdentifier(ident, IdentifierCarac("NONE", ident, "local", 0, 0)) #Ajout dans la table des identificateurs
     
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
