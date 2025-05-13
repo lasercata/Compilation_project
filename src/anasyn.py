@@ -10,10 +10,11 @@ Syntactical Analyser package.
 import sys, re
 import logging
 
-from IdentifierTable import IdentifierCarac
-from IdentifierTable import IdentifierTable
-from typing import Dict
-
+try : 
+    from idtable import IdentifierTable, IdentifierCarac, IdentifierType
+except ModuleNotFoundError:
+    from src.idtable import IdentifierTable, IdentifierCarac, IdentifierType
+    
 #---Project
 try:
     import src.analex as analex
@@ -27,7 +28,7 @@ logger = logging.getLogger('anasyn')
 DEBUG = False
 LOGGING_LEVEL = logging.DEBUG
 
-idTable = IdentifierTable.init()
+idTable = IdentifierTable()
 
 ##-Code
 class AnaSynException(Exception):
@@ -807,6 +808,7 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
     except Exception as err:
         print(f'Syntax error: {err}')
 
+    idTable.printTable()
     if show_ident_table:
         print("------ IDENTIFIER TABLE ------")
         #print(str(identifierTable))
