@@ -20,9 +20,6 @@ except ModuleNotFoundError:
 ##-Init
 logger = logging.getLogger('anasyn')
 
-DEBUG = False
-LOGGING_LEVEL = logging.DEBUG
-
 
 ##-Code
 class AnaSynException(Exception):
@@ -742,14 +739,11 @@ def retour(lexical_analyser: analex.LexicalAnalyser):
 
 
 ########################################################################
-def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool, debug_lvl):
+def compile_src(file_content: str, debug_lvl) -> str:
     '''
-    TODO: Docstring for main_anasyn.
+    Compiles the NNP source code `file_content` to NNP object code.
 
-    - fn               : the input filename of the program ;
-    - fn_out           : the name of the potential output file. If "", prints to stdout instead ;
-    - pseudo_code      : TODO
-    - show_ident_table : if true, displays the ident table ;
+    - file_content     : the content of the file (the NNP program) ;
     - debug_lvl        : indicates the logging level.
     '''
 
@@ -763,26 +757,14 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    if pseudo_code: #TODO
-        True#
-
-    else:
-        False#
-
+    # Analysis
     lexical_analyser = analex.LexicalAnalyser()
 
-    try:
-        with open(fn, 'r') as f:
-            lineIndex = 0
-
-            for line in f:
-                line = line.rstrip('\r\n')
-                lexical_analyser.analyse_line(lineIndex, line)
-                lineIndex = lineIndex + 1
-
-    except Exception as e:
-        print(f"Error: {e}: can't open the input file!")
-        return
+    lineIndex = 0
+    for line in file_content.split('\n'):
+        line = line.rstrip('\r\n')
+        lexical_analyser.analyse_line(lineIndex, line)
+        lineIndex = lineIndex + 1
 
     # launch the analysis of the program
     try:
@@ -790,7 +772,27 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
         program(lexical_analyser)
 
     except Exception as err:
+        raise SyntaxError(err)
+
+    # return str(comp) #TODO: use this line after merging with branch `alt_compiler`
+    return ''
+
+def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lvl):
+    '''
+    TODO: Docstring for main_anasyn.
+
+    - file_content     : the content of the file (the NNP program) ;
+    - fn_out           : the name of the potential output file. If "", prints to stdout instead ;
+    - show_ident_table : if true, displays the ident table ;
+    - debug_lvl        : indicates the logging level.
+    '''
+
+    try:
+        instructions_str = compile_src(file_content, debug_lvl)
+
+    except SyntaxError as err:
         print(f'Syntax error: {err}')
+        return
 
     if show_ident_table:
         print("------ IDENTIFIER TABLE ------")
@@ -809,11 +811,11 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
     else:
         output_file = sys.stdout
 
-    # Outputs the generated code to a file
-    #instrIndex = 0
-    #while instrIndex < codeGenerator.get_instruction_counter():
-    #        output_file.write("%s\n" % str(codeGenerator.get_instruction_at_index(instrIndex)))
-    #        instrIndex += 1
+    if instructions_str != '':
+        output_file.write(instructions_str)
+        logger.debug(f'Output to file: "{fn_out}"')
+    else:
+        logger.debug('No instruction generated!')
 
     if fn_out != '':
         output_file.close() 

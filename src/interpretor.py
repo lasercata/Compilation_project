@@ -5,7 +5,9 @@
 
 ##-Imports
 # import sys 
+import logging
 from typing import Any
+
 
 ##-Interpretor
 class VM: 
@@ -20,16 +22,24 @@ class VM:
         _type_: _description_
     """
 
-    def __init__(self, object_code: str, debug: bool = False):
+    def __init__(self, object_code: str, debug_lvl: int = logging.INFO):
         """Constructor of the class.
 
         Args:
             object_code (str): the instructions (in object nilnovi.
-            debug (bool, optional): boolean indicating if printing debug variables. Defaults to False.
+            debug_lvl (int, optional): Indicates the logging level. Defaults to INFO.
         """
 
         self.instructions = object_code.split('\n')
-        self.debug = debug
+
+        self.logger = logging.getLogger('interpretor')
+        self.logger.setLevel(debug_lvl)
+        ch = logging.StreamHandler()
+        ch.setLevel(debug_lvl)
+
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        self.logger.addHandler(ch)
 
     # ====== Init
     def debutProg(self):
@@ -276,8 +286,7 @@ class VM:
         if not self.stack.pop():
             self.tra(addr)
 
-            if self.debug:
-                print(f'tze: jumping at address {addr}')
+            self.logger.debug(f'tze: jumping at address {addr}')
 
     # ====== Error
     def erreur(self, exp : str):
@@ -449,22 +458,19 @@ class VM:
                 inst = self.instructions[self.co]
                 parsed_instr = parse_nilnovi_object_line(inst)
 
-                if self.debug:
-                    print(f'Stack       : {self.stack}')
-                    print(f'Heap        : {self.heap}')
-                    print(f'Instr ptr   : {self.co}')
-                    print(f'Base ptr    : {self.base}')
-                    print(f'Instruction : {parsed_instr}')
-                    print()
+                # if self.debug:
+                self.logger.debug(f'Stack       : {self.stack}')
+                self.logger.debug(f'Heap        : {self.heap}')
+                self.logger.debug(f'Instr ptr   : {self.co}')
+                self.logger.debug(f'Base ptr    : {self.base}')
+                self.logger.debug(f'Instruction : {parsed_instr}\n')
 
                 self.execute_instruction(parsed_instr)
                 self.co += 1
 
         except Exception as e:
             if str(e) == 'Program ended':
-                if self.debug:
-                    print('Program finished.')
-
+                self.logger.debug('Program finished.')
                 return
 
             print(f'Exception: {e}')
@@ -588,8 +594,6 @@ class Stack:
     
         return str(self.stack) #TODO: make a better representation ?
 
-        
-
 
 ##-Functions
 def parse_nilnovi_object_line(line: str) -> list[str | int]:
@@ -612,37 +616,12 @@ def parse_nilnovi_object_line(line: str) -> list[str | int]:
         return [line.strip('()')]
     
     ret.append(line[:line.index('(')])
-    # ret.append(int(line[line.index('(')+1:line.index(')')]))
-    arguments_str = line[line.index('(')+1:line.index(')')]
+
+    arguments_str = line[line.index('(') + 1:line.index(')')]
     args = arguments_str.split(',')
+
     for arg in args: 
         ret.append(int(arg))
 
     return ret
 
-
-def run_vm_from_file(fn: str, debug: bool = False):
-    """Running the vm using a file.
-
-    Args:
-        fn (str): file to read.
-        debug (bool, optional): debug option. Defaults to False.
-    """
-    
-    with open(fn, 'r') as f:
-        instructions = f.read()
-        vm = VM(instructions, debug)
-
-        vm.run()
-
-
-##-Testing
-if __name__ == "__main__":
-    from sys import argv
-
-    if len(argv) == 3:
-        debug = bool(int(argv[2]))
-    else:
-        debug = True
-
-    run_vm_from_file(argv[1], debug)
