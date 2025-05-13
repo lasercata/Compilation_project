@@ -76,7 +76,7 @@ class VM:
             addr (int): distance from self.base.
         """
 
-        self.empiler(self.stack.get_value_at(addr + self.base))
+        self.empiler(self.stack.get_value_at(self.base + addr + 2))
 
     def affectation(self):
         """Places the value at the summit at the address designated by the value under the summit.
@@ -103,7 +103,7 @@ class VM:
         """
 
         addr = self.stack.pop()
-        self.stack.set_value_at(addr, input('>'))
+        self.stack.set_value_at(addr, int(input('>')))
 
     def put(self):
         """Prints the summit of the stack, after pop it.
@@ -157,7 +157,7 @@ class VM:
         op2 = self.stack.pop()
         op1 = self.stack.pop()
 
-        self.stack.push(op1 / op2)
+        self.stack.push(op1 // op2)
 
     # ====== Boolean operations
     def egal(self):
@@ -332,7 +332,7 @@ class VM:
             self.stack.pop()
 
         self.base = newbase
-        self.co = ar
+        self.co = ar - 1
 
     def retourFonct(self):
         """Return of a function. Ensures that the summit of the stack is the result of the call.
@@ -348,7 +348,7 @@ class VM:
         # self.stack[self.stack.ip]=value
         self.stack.set_value_at(self.stack.ip, value)
         self.base = newbase
-        self.co = ar
+        self.co = ar - 1
 
 
     def retourProc(self):
@@ -358,12 +358,12 @@ class VM:
         ar = self.stack.get_value_at(self.base + 1)
         newbase = self.stack.get_value_at(self.stack.get_value_at(self.base))
 
-        while(self.stack.ip >= self.base):
+        while (self.stack.ip >= self.base):
             self.stack.pop()
 
         self.stack.pop() # pop one more time because there isn't return value
         self.base = newbase
-        self.co = ar
+        self.co = ar - 1
 
 
     def empilerParam(self, ad: int):
@@ -383,13 +383,13 @@ class VM:
             nbP (int): number of parameters of the constructor.
         """
 
-        prefixe = self.stack.ip - nbP - 2  # watch out for the index offset !!!
+        prefixe = self.stack.ip - nbP - 2  #  TODO :  watch out for the index offset !!!
         t_addr = self.stack.get_value_at(prefixe)
         t = self.heap.get_value_at(t_addr)
 
         # self.stack[prefixe + 2] = self.co
         self.stack.set_value_at(prefixe + 2, self.co - 1)
-        self.co = ad
+        self.co = ad - 1
         self.base = prefixe + 1
 
         self.heap.push(t_addr)
@@ -397,10 +397,14 @@ class VM:
         for _ in range(t):
             self.heap.push(None) #TODO: is it really None, or we put a value here ?
 
-    def traStat(self):
-        '''To do '''
-
-        pass
+    def traStat(self, a: int, nbp: int):
+        '''doing '''
+      
+        baseBloc = self.stack.ip - nbp - 1 #  TODO :  watch out for the index offset !!!
+        print("a :",a,"nbp :",nbp,"basebloc :",baseBloc,"self.co:",self.co)
+        self.base = baseBloc
+        self.stack.set_value_at(baseBloc + 1, self.co + 1)
+        self.co = a - 1
 
     def traVirt(self):
         '''To do'''
@@ -424,6 +428,7 @@ class VM:
         if hasattr(self, nom_instr):
             method = getattr(self, nom_instr)
             if len(instruction) > 1:
+                print(*instruction[1:])
                 method(*instruction[1:])
             else:
                 method()
@@ -439,29 +444,30 @@ class VM:
     
         last_line = len(self.instructions)
 
-        try:
-            while self.co < last_line:
-                inst = self.instructions[self.co]
-                parsed_instr = parse_nilnovi_object_line(inst)
+        # try:
+        while self.co < last_line:
+            inst = self.instructions[self.co]
+            parsed_instr = parse_nilnovi_object_line(inst)
 
-                if self.debug:
-                    print(f'Stack       : {self.stack}')
-                    print(f'Heap        : {self.heap}')
-                    print(f'Instr ptr   : {self.co}')
-                    print(f'Instruction : {parsed_instr}')
-                    print()
+            if self.debug:
+                print(f'Stack       : {self.stack}')
+                print(f'Heap        : {self.heap}')
+                print(f'Instr ptr   : {self.co}')
+                print(f'Base ptr    : {self.base}')
+                print(f'Instruction : {parsed_instr}')
+                print()
 
-                self.execute_instruction(parsed_instr)
-                self.co += 1
+            self.execute_instruction(parsed_instr)
+            self.co += 1
 
-        except Exception as e:
-            if str(e) == 'Program ended':
-                if self.debug:
-                    print('Program finished.')
+        # except Exception as e:
+        #     if str(e) == 'Program ended':
+        #         if self.debug:
+        #             print('Program finished.')
 
-                return
+        #         return
 
-            print(f'Exception: {e}')
+        #     print(f'Exception: {e}')
        
 
 ##-Stack
@@ -606,7 +612,13 @@ def parse_nilnovi_object_line(line: str) -> list[str | int]:
         return [line.strip('()')]
     
     ret.append(line[:line.index('(')])
-    ret.append(int(line[line.index('(')+1:line.index(')')]))
+    # ret.append(int(line[line.index('(')+1:line.index(')')]))
+    arguments_str = line[line.index('(')+1:line.index(')')]
+    args = arguments_str.split(',')
+    for arg in args: 
+        ret.append(int(arg))
+
+    print(ret)
 
     return ret
 
