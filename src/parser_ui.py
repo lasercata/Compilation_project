@@ -51,7 +51,7 @@ class ParserUi:
         examples += '\n\t./main.py c -h'
         examples += '\n\t./main.py c tests/nna/correct1.nno -o correct1.obj'
         examples += '\n\t./main.py r correct1.obj'
-        examples += '\n\t./main.py r correct1.nno -c'
+        examples += '\n\t./main.py r tests/nna/correct1.nno -c'
 
         self.parser = argparse.ArgumentParser(
             # prog='anasyn',
