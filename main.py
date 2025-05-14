@@ -4,8 +4,8 @@
 '''Run the anasyn parser'''
 
 ##-Import
-from src.parser_ui import AnasynParserUi
+from src.parser_ui import ParserUi
 
 if __name__ == '__main__':
-    app = AnasynParserUi()
+    app = ParserUi()
     app.parse()

@@ -56,6 +56,7 @@ class LexicalUnit(object):
         - ln    : the length of the unit ;
         - value : TODO
         '''
+
         self.line_index = l
         self.col_index = c
         self.length = ln
@@ -644,39 +645,23 @@ def string_is_keyword(s: str) -> bool:
 
 
 ########################################################################
-def main():
-    parser = argparse.ArgumentParser(description='Do the lexical analysis of a NNP program.')
-    parser.add_argument('inputfile', type=str, nargs=1, help='name of the input source file')
-    parser.add_argument('-o', '--outputfile', dest='outputfile', action='store', default="", help='name of the output file (default: stdout)')
-    parser.add_argument('-v', '--version', action='version', version='%(prog)s 1.0')
+def main_analex(file_content: str, fn_out: str):
+    '''
+    Launches the lexical analysis of the program `file_content`.
 
-    args = parser.parse_args()
-
-    filename = args.inputfile[0]
-    f = None
-    try:
-        f = open(filename, 'r')
-
-    except:
-        print("Error: can\'t open input file!")
-        return
-
-    outputFilename = args.outputfile
+    - file_content     : the content of the file (the NNP program) ;
+    - fn_out           : the name of the potential output file. If "", prints to stdout instead ;
+    '''
 
     lexical_analyser = LexicalAnalyser()
 
     lineIndex = 0
-    for line in f:
+    for line in file_content.split('\n'):
         line = line.rstrip('\r\n')
         lexical_analyser.analyse_line(lineIndex, line)
         lineIndex = lineIndex + 1
 
-    f.close()
+    lexical_analyser.save_to_file(fn_out)
 
     lexical_analyser.save_to_file(outputFilename)
-
-########################################################################
-
-if __name__ == "__main__":
-    main() 
 

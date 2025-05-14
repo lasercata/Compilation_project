@@ -17,11 +17,6 @@ import src.compiler as compiler
 ##-Init
 logger = logging.getLogger('anasyn')
 
-DEBUG = False
-LOGGING_LEVEL = logging.DEBUG
-
-##-Init
-# logger = logging.getLogger('anasyn')
 
 ##-Code
 class AnaSynException(Exception):
@@ -847,6 +842,7 @@ def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lv
     #-Close file
     if fn_out != '':
         output_file.close()
+
 ########################################################################
 
 if __name__ == "__main__":
