@@ -64,7 +64,7 @@ def specifProgPrinc(lexical_analyser: analex.LexicalAnalyser):
 
     lexical_analyser.acceptKeyword("procedure")
     ident = lexical_analyser.acceptIdentifier()
-    idTable.addIdentifier(ident, IdentifierCarac("procedure",ident, "global", 0, 0)) #Ajout dans la table des identificateurs
+    idTable.addIdentifier(ident, IdentifierCarac("procedure",ident, "global", None, None, 0, 0)) #Ajout dans la table des identificateurs
     logger.debug("Name of program : " + ident)
 
 def corpsProgPrinc(lexical_analyser: analex.LexicalAnalyser):
@@ -141,7 +141,7 @@ def procedure(lexical_analyser: analex.LexicalAnalyser):
 
     lexical_analyser.acceptKeyword("procedure")
     ident = lexical_analyser.acceptIdentifier()
-    idTable.addIdentifier(ident, IdentifierCarac("procedure",ident, "local", 0, 0)) #Ajout dans la table des identificateurs
+    idTable.addIdentifier(ident, IdentifierCarac("procedure",ident, "local", None, None,0, 0)) #Ajout dans la table des identificateurs
     logger.debug("Name of procedure : "+ident)
 
     partieFormelle(lexical_analyser)
@@ -159,7 +159,7 @@ def fonction(lexical_analyser: analex.LexicalAnalyser):
 
     lexical_analyser.acceptKeyword("function")
     ident = lexical_analyser.acceptIdentifier()
-    idTable.addIdentifier(ident, IdentifierCarac("function",ident, "local", 0, 0)) #Ajout dans la table des identificateurs
+    idTable.addIdentifier(ident, IdentifierCarac("function",ident, "local", None, None,0, 0)) #Ajout dans la table des identificateurs
     logger.debug("Name of function : "+ident)
 
     partieFormelle(lexical_analyser)
@@ -232,7 +232,7 @@ def specif(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
 
-    listeIdent(lexical_analyser)
+    listeIdentParam(lexical_analyser)
     lexical_analyser.acceptCharacter(":")
 
     if lexical_analyser.isKeyword("in"):
@@ -252,9 +252,16 @@ def mode(lexical_analyser: analex.LexicalAnalyser):
     if lexical_analyser.isKeyword("out"):
         lexical_analyser.acceptKeyword("out")
         logger.debug("in out parameter")
+        for key, value in idTable.__dict__.items():
+            if value.scope == "parameter":
+                idTable.__dict__[key].isOut = True
 
     else:
         logger.debug("in parameter")
+        for key, value in idTable.__dict__.items():
+            if value.scope == "parameter":
+                idTable.__dict__[key].isIn = True
+        
 
 def nnpType(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -324,11 +331,26 @@ def listeIdent(lexical_analyser: analex.LexicalAnalyser):
 
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("identifier found: "+str(ident))
-    idTable.addIdentifier(ident, IdentifierCarac("NONE", ident, "local", 0, 0)) #Ajout dans la table des identificateurs
-    
+    idTable.addIdentifier(ident, IdentifierCarac("NONE", ident, "local", None, None, idTable.getAdressCounter(), 0)) #Ajout dans la table des identificateurs
+    idTable.setAdressCounter(idTable.getAdressCounter+1)
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
         listeIdent(lexical_analyser)
+        
+def listeIdentParam(lexical_analyser: analex.LexicalAnalyser):
+    '''
+    TODO: description
+
+    - lexical_analyser : the lexical analyser.
+    '''
+
+    ident = lexical_analyser.acceptIdentifier()
+    logger.debug("identifier found: "+str(ident))
+    idTable.addIdentifier(ident, IdentifierCarac("NONE", ident, "parameter", None, None,0, 0)) #Ajout dans la table des identificateurs
+    
+    if lexical_analyser.isCharacter(","):
+        lexical_analyser.acceptCharacter(",")
+        listeIdentParam(lexical_analyser)
 
 def suiteInstrNonVide(lexical_analyser: analex.LexicalAnalyser):
     '''
