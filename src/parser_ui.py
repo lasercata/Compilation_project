@@ -88,4 +88,5 @@ class AnasynParserUi:
         #---Get arguments
         args = self.parser.parse_args()
 
-        main_anasyn(args.inputfile[0], args.outputfile, args.pseudo_code, args.show_ident_table, args.debug)
+        with open(args.inputfile[0], 'r') as f:
+            main_anasyn(f.read(), args.outputfile, args.show_ident_table, args.debug)

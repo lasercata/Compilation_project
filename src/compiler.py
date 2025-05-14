@@ -72,7 +72,7 @@ class Compiler:
                 if i != len(instruction[1]) - 1:
                     string += ", "
 
-            string += ");\n"
+            string += ")\n"
 
         return string
 
