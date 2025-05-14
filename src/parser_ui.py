@@ -124,10 +124,9 @@ class ParserUi:
         )
         self.parser_c.add_argument(
             '-d', '--debug',
-            action='store_const',
-            const=logging.DEBUG,
-            default=logging.INFO,
-            help='show debugging info on output'
+            action='count',
+            default=0,
+            help='show debugging info on output. Use -dd to increase level of verbosity'
         )
         # self.parser_c.add_argument(
         #     '-p', '--pseudo-code',

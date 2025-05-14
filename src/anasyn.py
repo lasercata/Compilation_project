@@ -13,10 +13,7 @@ import logging
 #---Project
 import src.analex as analex
 import src.compiler as compiler
-
-##-Init
-logger = logging.getLogger('anasyn')
-
+from src.utils import get_logger
 
 ##-Code
 class AnaSynException(Exception):
@@ -55,14 +52,7 @@ class Grammar:
         self.comp = compiler.Compiler()
 
         #---Set up self.logger
-        self.logger = logging.getLogger('anasyn')
-        self.logger.setLevel(debug_lvl)
-        ch = logging.StreamHandler()
-        ch.setLevel(debug_lvl)
-
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        self.logger.addHandler(ch)
+        self.logger = get_logger('ANASYN', debug_lvl)
 
     def create_lexical_analyser(self, src_code: str):
         '''Creates the lexical analyser.'''
