@@ -22,22 +22,26 @@ class VM:
         _type_: _description_
     """
 
-    def __init__(self, object_code: str, debug_lvl: int = logging.INFO):
+    def __init__(self, object_code: str, debug_lvl: int = logging.INFO, debug_text_mode: bool = False):
         """Constructor of the class.
 
         Args:
             object_code (str): the instructions (in object nilnovi.
             debug_lvl (int, optional): Indicates the logging level. Defaults to INFO.
+            debug_text_mode (bool, optional): Use alternative debug text format. Defaults to False.
         """
-
+        self.debug_text_mode = debug_text_mode
         self.instructions = object_code.split('\n')
 
         self.logger = logging.getLogger('interpretor')
         self.logger.setLevel(debug_lvl)
         ch = logging.StreamHandler()
         ch.setLevel(debug_lvl)
+        if debug_text_mode:
+            formatter = logging.Formatter('[VM] %(message)s')
+        else:
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         ch.setFormatter(formatter)
         self.logger.addHandler(ch)
 
@@ -458,12 +462,50 @@ class VM:
                 inst = self.instructions[self.co]
                 parsed_instr = parse_nilnovi_object_line(inst)
 
-                # if self.debug:
-                self.logger.debug(f'Stack       : {self.stack}')
-                self.logger.debug(f'Heap        : {self.heap}')
-                self.logger.debug(f'Instr ptr   : {self.co}')
-                self.logger.debug(f'Base ptr    : {self.base}')
-                self.logger.debug(f'Instruction : {parsed_instr}\n')
+                if self.debug_text_mode :
+                    instr_name = parsed_instr[0] if parsed_instr else "Unknown"
+        
+                    self.logger.debug(f"{'=' * 50}")
+                    self.logger.debug(f"INSTRUCTION: {instr_name} {' '.join(str(x) for x in parsed_instr[1:]) if len(parsed_instr) > 1 else ''}")
+                    self.logger.debug(f"{'-' * 50}")
+                    
+                    if self.stack:
+                        stack_display = []
+                        for i in range(self.stack.ip-1, -1, -1):
+                            if i== self.stack.ip - 1 and i == self.base:
+                                stack_display.append(f"→ [{i}]: {self.stack.get_value_at(i)} (TOP)(BASE)")
+                            elif i == self.stack.ip - 1:
+                                stack_display.append(f"→ [{i}]: {self.stack.get_value_at(i)} (TOP)")
+                            elif i == self.base:
+                                stack_display.append(f"→ [{i}]: {self.stack.get_value_at(i)} (BASE)")
+                            else:
+                                stack_display.append(f"  [{i}]: {self.stack.get_value_at(i)}")
+                        
+                        self.logger.debug("STACK:")
+                        for line in stack_display:
+                            self.logger.debug(line)
+                    else:
+                        self.logger.debug("STACK: [empty]")
+
+                    self.logger.debug(f"{'-' * 50}")
+                    self.logger.debug(f"INSTR PTR: {self.co}")
+                    self.logger.debug(f"BASE PTR : {self.base}")
+                    
+                    if self.heap:
+                        heap_display = []
+                        for i in range(self.heap.ip-1):
+                                heap_display.append(f"→ [{i}]: {self.stack.get_value_at(i)}")
+                        self.logger.debug("HEAP:")
+                        for line in heap_display:
+                            self.logger.debug(line)
+                    self.logger.debug(f"{'=' * 50}\n")
+
+                else : 
+                    self.logger.debug(f'Stack       : {self.stack}')
+                    self.logger.debug(f'Heap        : {self.heap}')
+                    self.logger.debug(f'Instr ptr   : {self.co}')
+                    self.logger.debug(f'Base ptr    : {self.base}')
+                    self.logger.debug(f'Instruction : {parsed_instr}\n')
 
                 self.execute_instruction(parsed_instr)
                 self.co += 1

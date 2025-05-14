@@ -159,6 +159,14 @@ class ParserUi:
             default=logging.INFO,
             help='show debugging info on output'
         )
+
+        self.parser_r.add_argument(
+            '-dt', '--debug-text',
+            action='store_true',
+            default=False,
+            help='use alternative debug text format'
+        )
+
         self.parser_r.add_argument(
             '-c', '--compile',
             action='store_true',
@@ -210,6 +218,6 @@ class ParserUi:
         else:
             instructions = get_file_content(args.inputfile[0], self.parser_c)
 
-        vm = VM(instructions, args.debug)
+        vm = VM(instructions, args.debug, debug_text_mode=args.debug_text)
         vm.run()
 
