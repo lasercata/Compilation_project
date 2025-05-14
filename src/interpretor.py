@@ -84,7 +84,7 @@ class VM:
             addr (int): distance from self.base.
         """
 
-        self.empiler(self.stack.get_value_at(self.base + addr + 2))
+        self.empiler(self.base + addr + 2)
 
     def affectation(self):
         """Places the value at the summit at the address designated by the value under the summit.
@@ -325,6 +325,9 @@ class VM:
         """Stacking the base block at the end of stack.
         """
 
+        if self.stack.ip <= 0:
+            self.reserver(2)
+        
         self.stack.push(self.base)
         self.stack.push(self.stack.get_value_at(self.base + 1))
 
@@ -347,7 +350,7 @@ class VM:
 
         ar = self.stack.get_value_at(self.base + 1)
         value = self.stack.summit()
-        newbase = self.stack.get_value_at(self.stack.get_value_at(self.base))
+        newbase = self.stack.get_value_at(self.base)
 
         while(self.stack.ip >= self.base):
             self.stack.pop()
@@ -411,7 +414,7 @@ class VM:
         #print("a :",a,"nbp :",nbp,"basebloc :",baseBloc,"self.co:",self.co)
         self.base = baseBloc
         self.stack.set_value_at(baseBloc + 1, self.co + 1)
-        self.co = a - 1
+        self.co = a - 2 
 
     def traVirt(self):
         '''To do'''
@@ -454,10 +457,10 @@ class VM:
             
             if self.stack:
                 stack_display = []
-                for i in range(self.stack.ip-1, -1, -1):
-                    if i == self.stack.ip - 1 and i == self.base:
+                for i in range(self.stack.ip, -1, -1):
+                    if i == self.stack.ip and i == self.base:
                         stack_display.append(f"→ [{i}]: {self.stack.get_value_at(i)} (TOP)(BASE)")
-                    elif i == self.stack.ip - 1:
+                    elif i == self.stack.ip:
                         stack_display.append(f"→ [{i}]: {self.stack.get_value_at(i)} (TOP)")
                     elif i == self.base:
                         stack_display.append(f"→ [{i}]: {self.stack.get_value_at(i)} (BASE)")
