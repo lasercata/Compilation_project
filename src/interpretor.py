@@ -5,8 +5,9 @@
 
 ##-Imports
 # import sys 
-import logging
 from typing import Any
+
+from src.utils import get_logger
 
 
 ##-Interpretor
@@ -36,23 +37,7 @@ class VM:
         #---Debug
         self.debug_lvl = debug_lvl
 
-        if debug_lvl > 0:
-            logger_lvl = logging.DEBUG
-        else:
-            logger_lvl = logging.INFO
-
-        self.logger = logging.getLogger('interpretor')
-        self.logger.setLevel(logger_lvl)
-        ch = logging.StreamHandler()
-        ch.setLevel(logger_lvl)
-
-        if debug_lvl <= 1:
-            formatter = logging.Formatter('[VM] %(message)s')
-        else:
-            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-        ch.setFormatter(formatter)
-        self.logger.addHandler(ch)
+        self.logger = get_logger('VM', debug_lvl)
 
     # ====== Init
     def debutProg(self):
