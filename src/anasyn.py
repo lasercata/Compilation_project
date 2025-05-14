@@ -97,9 +97,12 @@ def partieDecla(lexical_analyser: analex.LexicalAnalyser):
     - lexical_analyser : the lexical analyser.
     '''
     if lexical_analyser.isKeyword("procedure") or lexical_analyser.isKeyword("function") :
+        comp.add_instruction('tra', None)
+        tra_addr = comp.get_current_address()
         listeDeclaOp(lexical_analyser)
 
         if not lexical_analyser.isKeyword("begin"):
+            comp.set_instruction_args(tra_addr, (comp.get_current_address() + 1,))
             listeDeclaVar(lexical_analyser)
 
     else:
@@ -146,6 +149,7 @@ def procedure(lexical_analyser: analex.LexicalAnalyser):
 
     lexical_analyser.acceptKeyword("is")
     corpsProc(lexical_analyser)
+    comp.add_instruction('retourProc')
 
 
 def fonction(lexical_analyser: analex.LexicalAnalyser):
@@ -166,6 +170,7 @@ def fonction(lexical_analyser: analex.LexicalAnalyser):
 
     lexical_analyser.acceptKeyword("is")
     corpsFonct(lexical_analyser)
+    comp.add_instruction('retourFonct')
 
 def corpsProc(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -263,12 +268,12 @@ def nnpType(lexical_analyser: analex.LexicalAnalyser):
     if lexical_analyser.isKeyword("integer"):
         lexical_analyser.acceptKeyword("integer")
         logger.debug("integer type")
-        comp.add_instruction('reserver', 1)
+
 
     elif lexical_analyser.isKeyword("boolean"):
         lexical_analyser.acceptKeyword("boolean")
         logger.debug("boolean type")
-        comp.add_instruction('reserver', 1)
+
 
     else:
         logger.error("Unknown type found <"+ lexical_analyser.get_value() +">!")
@@ -301,8 +306,8 @@ def declaVar(lexical_analyser: analex.LexicalAnalyser):
 
     - lexical_analyser : the lexical analyser.
     '''
-
     listeIdent(lexical_analyser)
+    comp.add_reserver_instruction()
     lexical_analyser.acceptCharacter(":")
     logger.debug("now parsing type...")
     nnpType(lexical_analyser)
@@ -317,7 +322,7 @@ def listeIdent(lexical_analyser: analex.LexicalAnalyser):
 
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("identifier found: "+str(ident))
-
+    comp.new_identifier()
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
         listeIdent(lexical_analyser)
@@ -369,17 +374,21 @@ def instr(lexical_analyser: analex.LexicalAnalyser):
         if lexical_analyser.isSymbol(":="):                
             # affectation
             lexical_analyser.acceptSymbol(":=")
+            comp.add_instruction("empiler", ("ad(a)"))
             expression(lexical_analyser)
+            comp.add_instruction('affectation')
             logger.debug("parsed affectation")
 
         elif lexical_analyser.isCharacter("("):
+            comp.add_instruction('reserverBloc')
             lexical_analyser.acceptCharacter("(")
-
+            
             if not lexical_analyser.isCharacter(")"):
                 listePe(lexical_analyser)
 
             lexical_analyser.acceptCharacter(")")
             logger.debug("parsed procedure call")
+            comp.add_trastat_instruction("ad(p)")
 
         else:
             logger.error("Expecting procedure call or affectation!")
@@ -397,7 +406,7 @@ def listePe(lexical_analyser: analex.LexicalAnalyser):
     '''
 
     expression(lexical_analyser)
-
+    comp.new_param()
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
         listePe(lexical_analyser)
@@ -416,6 +425,7 @@ def expression(lexical_analyser: analex.LexicalAnalyser):
     if lexical_analyser.isKeyword("or"):
         lexical_analyser.acceptKeyword("or")
         exp1(lexical_analyser)
+        comp.add_instruction("ou")
 
 def exp1(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -454,8 +464,9 @@ def exp2(lexical_analyser: analex.LexicalAnalyser):
         exp3(lexical_analyser)
 
     elif lexical_analyser.isSymbol("=") or lexical_analyser.isSymbol("/="): 
-        opRel(lexical_analyser)
+        operator = opRel(lexical_analyser)
         exp3(lexical_analyser)
+        comp.add_instruction(operator)
 
 def opRel(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -468,27 +479,27 @@ def opRel(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isSymbol("<"):
         lexical_analyser.acceptSymbol("<")
-        comp.add_instruction("inf")
+        return 'inf'
 
     elif lexical_analyser.isSymbol("<="):
         lexical_analyser.acceptSymbol("<=")
-        comp.add_instruction("infegal")
+        return 'infegal'
 
     elif lexical_analyser.isSymbol(">"):
         lexical_analyser.acceptSymbol(">")
-        comp.add_instruction("sup")
+        return 'sup'
 
     elif lexical_analyser.isSymbol(">="):
         lexical_analyser.acceptSymbol(">=")
-        comp.add_instruction("supeg")
+        return 'supeg'
 
     elif lexical_analyser.isSymbol("="):
         lexical_analyser.acceptSymbol("=")
-        comp.add_instruction("egal")
+        return 'egal'
 
     elif lexical_analyser.isSymbol("/="):
         lexical_analyser.acceptSymbol("/=")
-        comp.add_instruction("diff")
+        return 'diff'
 
     else:
         msg = "Unknown relationnal operator <"+ lexical_analyser.get_value() +">!"
@@ -506,8 +517,9 @@ def exp3(lexical_analyser: analex.LexicalAnalyser):
     exp4(lexical_analyser)    
 
     if lexical_analyser.isCharacter("+") or lexical_analyser.isCharacter("-"):
-        opAdd(lexical_analyser)
+        operator = opAdd(lexical_analyser)
         exp4(lexical_analyser)
+        comp.add_instruction(operator)
 
 def opAdd(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -520,11 +532,11 @@ def opAdd(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isCharacter("+"):
         lexical_analyser.acceptCharacter("+")
-        comp.add_instruction('add')
+        return 'add'
 
     elif lexical_analyser.isCharacter("-"):
         lexical_analyser.acceptCharacter("-")
-        comp.add_instruction('sous')
+        return 'sous'
 
     else:
         msg = "Unknown additive operator <"+ lexical_analyser.get_value() +">!"
@@ -543,8 +555,9 @@ def exp4(lexical_analyser: analex.LexicalAnalyser):
     prim(lexical_analyser)    
 
     if lexical_analyser.isCharacter("*") or lexical_analyser.isCharacter("/"):
-        opMult(lexical_analyser)
+        operator = opMult(lexical_analyser)
         prim(lexical_analyser)
+        comp.add_instruction(operator)
 
 def opMult(lexical_analyser: analex.LexicalAnalyser):
     '''
@@ -557,11 +570,11 @@ def opMult(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isCharacter("*"):
         lexical_analyser.acceptCharacter("*")
-        comp.add_instruction('mult')
+        return 'mult'
 
     elif lexical_analyser.isCharacter("/"):
         lexical_analyser.acceptCharacter("/")
-        comp.add_instruction('div')
+        return 'div'
 
     else:
         msg = "Unknown multiplicative operator <"+ lexical_analyser.get_value() +">!"
@@ -628,6 +641,7 @@ def elemPrim(lexical_analyser: analex.LexicalAnalyser):
         ident = lexical_analyser.acceptIdentifier()
 
         if lexical_analyser.isCharacter("("):            # Appel fonct
+            comp.add_instruction('reserverBloc')
             lexical_analyser.acceptCharacter("(")
 
             if not lexical_analyser.isCharacter(")"):
@@ -640,7 +654,8 @@ def elemPrim(lexical_analyser: analex.LexicalAnalyser):
 
         else:
             logger.debug("Use of an identifier as an expression: " + ident)
-                        # ...
+            comp.add_instruction('empiler','ad('+ident+')')
+            comp.add_instruction('valeurPile')
     else:
         logger.error("Unknown Value!")
         raise AnaSynException("Unknown Value!")
@@ -738,7 +753,7 @@ def boucle(lexical_analyser: analex.LexicalAnalyser):
     suiteInstr(lexical_analyser)
     
     comp.add_instruction("tra", ad1)
-    ad2 = comp.get_current_address() + 1
+    ad2 = comp.get_current_address() + 2
     comp.set_instruction_args(tze_addr, (ad2,))
 
     lexical_analyser.acceptKeyword("end")
@@ -755,13 +770,32 @@ def altern(lexical_analyser: analex.LexicalAnalyser):
     lexical_analyser.acceptKeyword("if")
 
     expression(lexical_analyser)
-
+    
+    # Adding tze jump, with a placeholder for the address
+    comp.tze('tze', None)
+    tze_addr = comp.get_current_address()
+    
     lexical_analyser.acceptKeyword("then")
     suiteInstr(lexical_analyser)
+    
+    ad1 = comp.get_current_address() + 1
+
 
     if lexical_analyser.isKeyword("else"):
         lexical_analyser.acceptKeyword("else")
+        
+        # Adding tra jump
+        comp.add_instruction('tra', None)
+        tra_addr = comp.get_current_address()
+    
+        # Modifying the tze parameter
+        ad1 += 1
+        comp.set_instruction_args(tze_addr, (ad1,))
+        
         suiteInstr(lexical_analyser)
+        
+        ad2 = comp.get_current_address() + 1
+        comp.set_instruction_args(tra_addr, (ad2,))
 
     lexical_analyser.acceptKeyword("end")
     logger.debug("end of if")

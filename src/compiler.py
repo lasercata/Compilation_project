@@ -15,6 +15,12 @@ class Compiler:
     
     def __init__(self):
         self.instructions = []
+        self.identifiers_count = 0
+        self.parameters_count = 0
+        
+    ################################################################################
+    #                                  Instructions manager                        #
+    ################################################################################
 
     def add_instruction(self, name: str, *args):
         '''
@@ -66,11 +72,49 @@ class Compiler:
                 if i != len(instruction[1]) - 1:
                     string += ", "
 
-            string += ")\n"
+            string += ");\n"
 
         return string
 
+    ################################################################################
+    #                     Memory allocation for identifiers                        #
+    ################################################################################
 
+    def new_identifier(self):
+        '''
+        Increments the identifier count for "reserver" instruction.
+        '''
+
+        self.identifiers_count += 1
+
+
+    def add_reserver_instruction(self):
+        '''
+        Adds a "reserver" instruction to the instruction list with the current identifier count.
+        '''
+
+        self.add_instruction('reserver', self.identifiers_count)
+        self.identifiers_count = 0
+
+    ################################################################################
+    #                 Parameters count for functions and procedures                #
+    ################################################################################
+
+    def new_param(self):
+        '''
+        Increments the parameter count for "traStat" instruction.
+        '''
+
+        self.parameters_count += 1
+        
+    def add_trastat_instruction(self, ad_p):
+        '''
+        Adds a "traStat" instruction to the instruction list with the current parameter count.
+        '''
+
+        self.add_instruction('traStat', (ad_p,self.parameters_count))
+        self.parameters_count = 0
+'''
 ##-Tests
 if __name__ == '__main__':
     c = Compiler()
@@ -81,3 +125,4 @@ if __name__ == '__main__':
     print(c.instructions)
 
     print(c)
+'''
