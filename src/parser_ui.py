@@ -155,16 +155,9 @@ class ParserUi:
         self.parser_r.add_argument(
             '-d', '--debug',
             action='count',
-            help='show debugging info on output'
+            default=0,
+            help='show debugging info on output. Use -dd to increase level of verbosity'
         )
-
-        self.parser_r.add_argument(
-            '-dt', '--debug-text',
-            action='store_true',
-            default=False,
-            help='use alternative debug text format'
-        )
-
         self.parser_r.add_argument(
             '-c', '--compile',
             action='store_true',
@@ -203,11 +196,6 @@ class ParserUi:
     def parse_run(self, args):
         '''Parse the arguments for the `compile` mode'''
 
-        debug_lvl = args.debug
-
-        if debug_lvl == None:
-            debug_lvl = 0
-
         if args.compile:
             src_code = get_file_content(args.inputfile[0], self.parser_c)
 
@@ -221,6 +209,6 @@ class ParserUi:
         else:
             instructions = get_file_content(args.inputfile[0], self.parser_c)
 
-        vm = VM(instructions, debug_lvl)
+        vm = VM(instructions, args.debug)
         vm.run()
 
