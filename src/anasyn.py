@@ -253,13 +253,13 @@ def mode(lexical_analyser: analex.LexicalAnalyser):
         lexical_analyser.acceptKeyword("out")
         logger.debug("in out parameter")
         for key, value in idTable.__dict__.items():
-            if value.scope == "parameter":
+            if type(value) != int and value.scope == "parameter":
                 idTable.__dict__[key].isOut = True
 
     else:
         logger.debug("in parameter")
         for key, value in idTable.__dict__.items():
-            if value.scope == "parameter":
+            if type(value) != int and value.scope == "parameter":
                 idTable.__dict__[key].isIn = True
         
 
@@ -272,15 +272,17 @@ def nnpType(lexical_analyser: analex.LexicalAnalyser):
 
     if lexical_analyser.isKeyword("integer"):
         lexical_analyser.acceptKeyword("integer")
+
         for key, value in idTable.__dict__.items():
-            if value.type == "NONE":
+            if type(value) != int and value.type == "NONE":
                 idTable.__dict__[key].type = "integer"
+
         logger.debug("integer type")
 
     elif lexical_analyser.isKeyword("boolean"):
         lexical_analyser.acceptKeyword("boolean")
         for key, value in idTable.__dict__.items():
-            if value.type == "NONE":
+            if type(value) != int and value.type == "NONE":
                 idTable.__dict__[key].type = "boolean" 
         logger.debug("boolean type")                
 
@@ -332,7 +334,8 @@ def listeIdent(lexical_analyser: analex.LexicalAnalyser):
     ident = lexical_analyser.acceptIdentifier()
     logger.debug("identifier found: "+str(ident))
     idTable.addIdentifier(ident, IdentifierCarac("NONE", ident, "local", None, None, idTable.getAdressCounter(), 0)) #Ajout dans la table des identificateurs
-    idTable.setAdressCounter(idTable.getAdressCounter+1)
+    idTable.setAdressCounter(idTable.adressCounter + 1)
+
     if lexical_analyser.isCharacter(","):
         lexical_analyser.acceptCharacter(",")
         listeIdent(lexical_analyser)
@@ -823,12 +826,12 @@ def main_anasyn(fn: str, fn_out: str, pseudo_code: bool, show_ident_table: bool,
         return
 
     # launch the analysis of the program
-    try:
-        lexical_analyser.init_analyser()
-        program(lexical_analyser)
+    # try:
+    lexical_analyser.init_analyser()
+    program(lexical_analyser)
 
-    except Exception as err:
-        print(f'Syntax error: {err}')
+    # except Exception as err:
+    #     print(f'Syntax error: {err}')
 
     idTable.printTable()
     if show_ident_table:

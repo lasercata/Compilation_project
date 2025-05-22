@@ -2,7 +2,6 @@ from typing import Dict
 
 
 class IdentifierType:
-
     """This class is used to define the different types of identifiers."""
 
     INTEGER = "integer"
@@ -11,18 +10,20 @@ class IdentifierType:
     PROCEDURE = "procedure"
 
 class IdentifierCarac:
-
-    def __init__(self, type: IdentifierType, name: str, scope: str, isIn: bool= None, isOut: bool=None, address=None, value=None):
-        """type: type of the identifier, defined higher in the code;
+    def __init__(self, type_: IdentifierType, name: str, scope: str, isIn: bool | None = None, isOut: bool | None = None, address=None, value=None):
+        """
+        type: type of the identifier, defined higher in the code;
         name: name of the identifier;
         scope: scope of the identifier, can be either "global", "local" or "parameter";
         address: address of the identifier in memory if definable, default value None;
-        value: value of the identifier, default value None."""
-        self.type = type
+        value: value of the identifier, default value None.
+        """
+
+        self.type = type_
         self.name = name
         self.scope = scope
-        self.isIn= isIn
-        self.isOut= isOut
+        self.isIn = isIn
+        self.isOut = isOut
         self.address = address
         self.value = value
     
@@ -51,8 +52,8 @@ class IdentifierCarac:
     def __setName__(self, name):
         self.name = name
     
-    def __setType__(self, type):
-        self.type = type
+    def __setType__(self, type_):
+        self.type = type_
     
     def __setScope__(self, scope):
         self.scope = scope
@@ -70,46 +71,54 @@ class IdentifierCarac:
         self.value = value
     
 class IdentifierTable:
-    
     """This class is meant to be used as a table for identifiers."""
     
     def __init__(self):
         """this method is used to initialize a table for identifiers."""
+
         self.__dict__: Dict[str, IdentifierCarac]={} #initializing the table as a dictionary containing the identifiers as keys and their characteristics as values.
-        adressCounter = 0 #this variable is used to keep track of the address of the identifiers in memory.
+        self.adressCounter = 0 #this variable is used to keep track of the address of the identifiers in memory.
 
     def getAdressCounter(self):
         """this method is used to get the address counter."""
+
         return self.adressCounter
-    
+
     def setAdressCounter(self, adressCounter):
         """this method is used to set the address counter."""
+
         self.adressCounter = adressCounter
     
     def addIdentifier(self, nom : str, carac: IdentifierCarac):
         """this method is used to add an identifier to the table."""
+
         if nom not in self.__dict__:
             self.__dict__[nom] = carac
+
         else:
             raise Exception("Identifier already exists")
-        
     
     def deleteIdentifier(self, identifierName: str):
         """this method is used to delete an identifier from the table."""
+
         if identifierName in self.__dict__:
             del self.__dict__[identifierName]
+
         else:
             raise Exception("Identifier does not exist")
     
     def getIdentifier(self, name: str):
         """this method is used to get an identifier from the table."""
+
         if name in self.__dict__:
             return self.__dict__[name]
+
         else:
             raise Exception("Identifier does not exist")    
     
     def getTable(self):
         """this method is used to get the table."""
+
         return self.__dict__
     
     def printTable(self):
@@ -130,6 +139,7 @@ class IdentifierTable:
                 str(identifier.value)
             ]
             for identifier in self.__dict__.values()
+            if type(identifier) != int
         ]
 
         # Calcul de la largeur maximale de chaque colonne
@@ -152,9 +162,4 @@ class IdentifierTable:
         for row in rows:
             print(format_row(row))
         print(separator)
-
-
-    
-    
-    
 
