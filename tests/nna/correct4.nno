@@ -3,7 +3,7 @@
 //   
 //
 //  Affiche le nombre de valeurs paires lues
-//  arrêt quand on a lu un zéro
+//  arrÃªt quand on a lu un zÃ©ro
 //-------------------------------------------------
 
 procedure pp is

@@ -118,7 +118,7 @@ class ParserUi:
             help='name of the output file (default: stdout)'
         )
         self.parser_c.add_argument(
-            '--show-ident-table',
+            '-t', '--show-ident-table',
             action='store_true',
             help='shows the final identifiers table'
         )

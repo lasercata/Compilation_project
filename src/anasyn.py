@@ -14,6 +14,7 @@ import logging
 import src.analex as analex
 import src.compiler as compiler
 from src.utils import get_logger
+from src.idtable import IdentifierTable, IdentifierCarac, IdentifierType
 
 ##-Code
 class AnaSynException(Exception):
@@ -51,6 +52,9 @@ class Grammar:
         #---Create the compiler
         self.comp = compiler.Compiler()
 
+        #---Create the id table
+        self.id_table = IdentifierTable()
+
         #---Set up self.logger
         self.logger = get_logger('ANASYN', debug_lvl)
 
@@ -76,9 +80,11 @@ class Grammar:
 
         # Point de génération de code : Début du programme
         self.comp.add_instruction('debutProg')
+
         self.specifProgPrinc()
         self.lexical_analyser.acceptKeyword("is")
         self.corpsProgPrinc()
+
         self.comp.add_instruction('finProg')
 
     def specifProgPrinc(self):
@@ -88,7 +94,9 @@ class Grammar:
 
         self.lexical_analyser.acceptKeyword("procedure")
         ident = self.lexical_analyser.acceptIdentifier()
+
         self.logger.debug("Name of program : " + ident)
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE,ident, "global", None, None, 0, 0)) #Ajout dans la table des identificateurs
 
     def  corpsProgPrinc(self):
         '''
@@ -115,6 +123,7 @@ class Grammar:
         '''
         <partieDecla> -> <listeDeclaOp> <listeDeclaVar> | <listeDeclaVar> | <listeDeclaOp>.
         '''
+
         if self.lexical_analyser.isKeyword("procedure") or self.lexical_analyser.isKeyword("function") :
             self.comp.add_instruction('tra', None)
             tra_addr = self.comp.get_current_address()
@@ -156,7 +165,9 @@ class Grammar:
 
         self.lexical_analyser.acceptKeyword("procedure")
         ident = self.lexical_analyser.acceptIdentifier()
-        self.logger.debug("Name of procedure : "+ident)
+
+        self.logger.debug("Name of procedure : " + ident)
+        self.id_table.addIdentifier(ident, IdentifierCarac("procedure", ident, "local",  None, None, 0, 0)) #Ajout dans la table des identificateurs
 
         self.partieFormelle()
 
@@ -171,7 +182,9 @@ class Grammar:
 
         self.lexical_analyser.acceptKeyword("function")
         ident = self.lexical_analyser.acceptIdentifier()
-        self.logger.debug("Name of function : "+ident)
+
+        self.logger.debug("Name of function : " + ident)
+        self.id_table.addIdentifier(ident, IdentifierCarac("function", ident, "local", None, None, 0, 0)) #Ajout dans la table des identificateurs
 
         self.partieFormelle()
 
@@ -234,7 +247,8 @@ class Grammar:
         <specif> -> <listeIdent> : <mode> <type> | <listeIdent> : <type>.
         '''
 
-        self.listeIdent()
+        # self.listeIdent()
+        self.listeIdentParam()
         self.lexical_analyser.acceptCharacter(":")
 
         if self.lexical_analyser.isKeyword("in"):
@@ -251,10 +265,17 @@ class Grammar:
 
         if self.lexical_analyser.isKeyword("out"):
             self.lexical_analyser.acceptKeyword("out")
+
             self.logger.debug("in out parameter")
+            for key, value in self.id_table.__dict__.items():
+                if type(value) != int and value.scope == "parameter":
+                    self.id_table.__dict__[key].isOut = True
 
         else:
             self.logger.debug("in parameter")
+            for key, value in self.id_table.__dict__.items():
+                if type(value) != int and value.scope == "parameter":
+                    self.id_table.__dict__[key].isIn = True
 
     def nnpType(self):
         '''
@@ -263,17 +284,24 @@ class Grammar:
 
         if self.lexical_analyser.isKeyword("integer"):
             self.lexical_analyser.acceptKeyword("integer")
+
             self.logger.debug("integer type")
+            for key, value in self.id_table.__dict__.items():
+                if type(value) != int and value.type == "NONE":
+                    self.id_table.__dict__[key].type = "integer"
 
 
         elif self.lexical_analyser.isKeyword("boolean"):
             self.lexical_analyser.acceptKeyword("boolean")
-            self.logger.debug("boolean type")
 
+            self.logger.debug("boolean type")
+            for key, value in self.id_table.__dict__.items():
+                if type(value) != int and value.type == "NONE":
+                    self.id_table.__dict__[key].type = "boolean" 
 
         else:
-            self.logger.error("Unknown type found <"+ self.lexical_analyser.get_value() +">!")
-            raise AnaSynException("Unknown type found <"+ self.lexical_analyser.get_value() +">!")
+            self.logger.error("Unknown type found <" + self.lexical_analyser.get_value() + ">!")
+            raise AnaSynException("Unknown type found <" + self.lexical_analyser.get_value() + ">!")
 
     def partieDeclaProc(self):
         '''
@@ -310,10 +338,28 @@ class Grammar:
 
         ident = self.lexical_analyser.acceptIdentifier()
         self.logger.debug("identifier found: "+str(ident))
+        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "local", None, None, self.id_table.getAdressCounter(), 0)) #Ajout dans la table des identificateurs
+        self.id_table.setAdressCounter(self.id_table.adressCounter + 1)
+
         self.comp.new_identifier()
+
         if self.lexical_analyser.isCharacter(","):
             self.lexical_analyser.acceptCharacter(",")
             self.listeIdent()
+
+    def listeIdentParam(self):
+        '''
+        TODO: description
+        '''
+
+        ident = self.lexical_analyser.acceptIdentifier()
+
+        self.logger.debug("identifier found: " + str(ident))
+        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "parameter", None, None, 0, 0)) #Ajout dans la table des identificateurs
+        
+        if self.lexical_analyser.isCharacter(","):
+            self.lexical_analyser.acceptCharacter(",")
+            self.listeIdentParam()
 
     def suiteInstrNonVide(self):
         '''
@@ -334,7 +380,7 @@ class Grammar:
         if not self.lexical_analyser.isKeyword("end"):
             self.suiteInstrNonVide()
 
-    def instr(self):        
+    def instr(self):
         '''
         <instr> -> <affectation> | <boucle> | <altern> | <es> | <retour> | <appelProc>.
         '''
@@ -353,6 +399,7 @@ class Grammar:
 
         elif self.lexical_analyser.isIdentifier():
             self.ident = self.lexical_analyser.acceptIdentifier()
+
             if self.lexical_analyser.isSymbol(":="):                
                 # affectation
                 self.lexical_analyser.acceptSymbol(":=")
@@ -760,16 +807,24 @@ class Grammar:
         self.expression()
 
     #===Compile
-    def compile(self) -> str:
+    def compile(self, show_ident_table: bool = False) -> str:
         '''
         Compiles the NNP source code to NNP object code.
 
         If an exception occurs, it throws a `SyntaxError`.
+
+        Args:
+            :show_ident_table: if True, prints the identifier table.
         '''
 
         try:
             self.lexical_analyser.init_analyser()
             self.program()
+
+            if show_ident_table:
+                print("------ IDENTIFIER TABLE ------")
+                self.id_table.printTable()
+                print("------ END OF IDENTIFIER TABLE ------")
 
         except Exception as err:
             raise SyntaxError(err)
@@ -792,18 +847,11 @@ def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lv
     G = Grammar(file_content, debug_lvl)
 
     try:
-        instructions_str = G.compile()
+        instructions_str = G.compile(show_ident_table)
 
     except SyntaxError as err:
         print(f'Syntax error: {err}')
         return
-
-    #---Show the identifiers table, if asked
-    if show_ident_table:
-        print("------ IDENTIFIER TABLE ------")
-        #print(str(identifierTable))
-        print("------ END OF IDENTIFIER TABLE ------")
-
 
     #---Write to file / stdout
     #-Select file or stdout

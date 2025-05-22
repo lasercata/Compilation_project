@@ -255,7 +255,7 @@ class LexicalAnalyser(object):
         char = re.compile("[a-zA-Z]")
         beginColIndex = 0
         c = ''
-        colIndex = 0;
+        colIndex = 0
 
         while colIndex < len(line):
             c = line[colIndex]
@@ -663,5 +663,5 @@ def main_analex(file_content: str, fn_out: str):
 
     lexical_analyser.save_to_file(fn_out)
 
-    lexical_analyser.save_to_file(outputFilename)
+    lexical_analyser.save_to_file(fn_out)
 
