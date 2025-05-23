@@ -485,8 +485,9 @@ class Grammar:
             self.lexical_analyser.isSymbol(">") or
             self.lexical_analyser.isSymbol(">=")
         ):
-            self.opRel()
+            operator = self.opRel()
             self.exp3()
+            self.comp.add_instruction(operator)
 
         elif self.lexical_analyser.isSymbol("=") or self.lexical_analyser.isSymbol("/="): 
             operator = self.opRel()
@@ -604,9 +605,12 @@ class Grammar:
         self.logger.debug("parsing prim")
 
         if self.lexical_analyser.isCharacter("+") or self.lexical_analyser.isCharacter("-") or self.lexical_analyser.isKeyword("not"):
-            self.opUnaire()
+            operator = self.opUnaire()
+            self.elemPrim()
+            self.comp.add_instruction(operator)
+        else :
+            self.elemPrim()
 
-        self.elemPrim()
 
     def opUnaire(self):
         '''
@@ -620,11 +624,11 @@ class Grammar:
 
         elif self.lexical_analyser.isCharacter("-"):
             self.lexical_analyser.acceptCharacter("-")
-            self.comp.add_instruction('moins')
+            return 'moins'
 
         elif self.lexical_analyser.isKeyword("not"):
             self.lexical_analyser.acceptKeyword("not")
-            self.comp.add_instruction('non')
+            return 'non'
 
         else:
             msg = "Unknown additive operator <"+ self.lexical_analyser.get_value() +">!"
