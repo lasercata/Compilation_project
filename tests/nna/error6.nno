@@ -2,7 +2,7 @@
 //  programme incorrect
 //  
 //  M. Guyomard
-//  double déclaration variable
+//  double dÃ©claration variable
 //-----------------------------------------------  
 procedure pp is
   e,e:a;				//mess. erreur attendu
