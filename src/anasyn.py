@@ -277,6 +277,14 @@ class Grammar:
 
         if self.lexical_analyser.isKeyword("in"):
             self.mode()
+        
+        else:
+            self.logger.debug("implicit 'in' parameter (default mode)")
+            for key, value in self.id_table.tbl.items():
+                if value.scope == "parameter" and value.type == "NONE":
+                    value.isIn = True
+                    value.isOut = False
+                    value.scope = "local"  # Comme tout paramètre 'in' par valeur
 
         self.nnpType()
 
@@ -968,6 +976,7 @@ def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lv
     #-Close file
     if fn_out != '':
         output_file.close()
+
 
 ########################################################################
 
