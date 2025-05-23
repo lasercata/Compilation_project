@@ -1,0 +1,11 @@
+//-----------------------------------------------
+//  programme incorrect
+//  
+//  M. Guyomard
+//  double déclaration variable
+//-----------------------------------------------  
+procedure pp is
+  e: a;				//mess. erreur attendu
+begin
+  put(15)
+end.

@@ -26,6 +26,15 @@ class AnaSynException(Exception):
     def __str__(self) -> str:
         return repr(self.value)
 
+class SemanticException(Exception):
+    '''Defines an exception for semantic error'''
+
+    def __init__(self, value: str):
+        self.value = value
+
+    def __str__(self) -> str:
+        return repr(self.value)
+
 ########################################################################                     
 #### Syntactical Diagrams
 ########################################################################                     
@@ -426,11 +435,21 @@ class Grammar:
                 self.lexical_analyser.acceptSymbol(":=")
 
                 var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 2].value
-                var_static_addr = self.id_table.tbl[var_name].address
+                var = self.id_table.tbl[var_name]
+                var_static_addr = var.address
 
-                var_scope = self.id_table.tbl[var_name].scope
                 # print(var_name + " is a " + var_scope)
 
+                var_type = var.type
+                val = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index]
+
+                if (
+                    (var_type == IdentifierType.INTEGER and type(val) not in (analex.Integer, analex.Identifier))
+                    # or (var_type == IdentifierType.BOOLEAN and type(val) != analex.Keyword)
+                ):
+                    raise SemanticException('affectation: wrong type')
+
+                var_scope = var.scope
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
                 elif var_scope == "local":
@@ -776,13 +795,22 @@ class Grammar:
             self.comp.add_instruction('get')
             self.logger.debug("Call to get "+ident)
 
+            if self.id_table.tbl[ident].type != IdentifierType.INTEGER:
+                raise SemanticException('get takes an integer')
+
         elif self.lexical_analyser.isKeyword("put"):
             self.lexical_analyser.acceptKeyword("put")
+
             self.lexical_analyser.acceptCharacter("(")
             self.expression()
             self.lexical_analyser.acceptCharacter(")")
+
             self.comp.add_instruction('put')
             self.logger.debug("Call to put")
+
+            #TODO: semantic error if expression is not an int
+            # if self.id_table.tbl[ident].type != IdentifierType.INTEGER:
+            #     raise SemanticException('get takes an integer')
 
         else:
             self.logger.error("Unknown E/S instruction!")
