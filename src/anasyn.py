@@ -746,9 +746,13 @@ class Grammar:
 
         if self.lexical_analyser.isKeyword("get"):
             self.lexical_analyser.acceptKeyword("get")
+
             self.lexical_analyser.acceptCharacter("(")
             ident = self.lexical_analyser.acceptIdentifier()
             self.lexical_analyser.acceptCharacter(")")
+
+            ident_addr = self.id_table.tbl[ident].address
+            self.comp.add_instruction('empiler', ident_addr)
             self.comp.add_instruction('get')
             self.logger.debug("Call to get "+ident)
 
@@ -827,6 +831,9 @@ class Grammar:
             
             ad2 = self.comp.get_current_address() + 1
             self.comp.set_instruction_args(tra_addr, (ad2,))
+
+        else:
+            self.comp.set_instruction_args(tze_addr, (ad1,))
 
         self.lexical_analyser.acceptKeyword("end")
         self.logger.debug("end of if")
