@@ -267,15 +267,15 @@ class Grammar:
             self.lexical_analyser.acceptKeyword("out")
 
             self.logger.debug("in out parameter")
-            for key, value in self.id_table.__dict__.items():
-                if type(value) != int and value.scope == "parameter":
-                    self.id_table.__dict__[key].isOut = True
+            for key, value in self.id_table.tbl.items():
+                if value.scope == "parameter":
+                    self.id_table.tbl[key].isOut = True
 
         else:
             self.logger.debug("in parameter")
-            for key, value in self.id_table.__dict__.items():
-                if type(value) != int and value.scope == "parameter":
-                    self.id_table.__dict__[key].isIn = True
+            for key, value in self.id_table.tbl.items():
+                if value.scope == "parameter":
+                    self.id_table.tbl[key].isIn = True
 
     def nnpType(self):
         '''
@@ -286,18 +286,18 @@ class Grammar:
             self.lexical_analyser.acceptKeyword("integer")
 
             self.logger.debug("integer type")
-            for key, value in self.id_table.__dict__.items():
-                if type(value) != int and value.type == "NONE":
-                    self.id_table.__dict__[key].type = "integer"
+            for key, value in self.id_table.tbl.items():
+                if value.type == "NONE":
+                    self.id_table.tbl[key].type = "integer"
 
 
         elif self.lexical_analyser.isKeyword("boolean"):
             self.lexical_analyser.acceptKeyword("boolean")
 
             self.logger.debug("boolean type")
-            for key, value in self.id_table.__dict__.items():
-                if type(value) != int and value.type == "NONE":
-                    self.id_table.__dict__[key].type = "boolean" 
+            for key, value in self.id_table.tbl.items():
+                if value.type == "NONE":
+                    self.id_table.tbl[key].type = "boolean" 
 
         else:
             self.logger.error("Unknown type found <" + self.lexical_analyser.get_value() + ">!")
@@ -846,12 +846,12 @@ def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lv
     #---Run the analysis
     G = Grammar(file_content, debug_lvl)
 
-    try:
-        instructions_str = G.compile(show_ident_table)
+    # try:
+    instructions_str = G.compile(show_ident_table)
 
-    except SyntaxError as err:
-        print(f'Syntax error: {err}')
-        return
+    # except SyntaxError as err:
+    #     print(f'Syntax error: {err}')
+    #     return
 
     #---Write to file / stdout
     #-Select file or stdout

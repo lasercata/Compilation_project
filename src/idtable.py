@@ -76,7 +76,7 @@ class IdentifierTable:
     def __init__(self):
         """this method is used to initialize a table for identifiers."""
 
-        self.__dict__: Dict[str, IdentifierCarac]={} #initializing the table as a dictionary containing the identifiers as keys and their characteristics as values.
+        self.tbl: Dict[str, IdentifierCarac]={} #initializing the table as a dictionary containing the identifiers as keys and their characteristics as values.
         self.adressCounter = 0 #this variable is used to keep track of the address of the identifiers in memory.
 
     def getAdressCounter(self):
@@ -92,8 +92,8 @@ class IdentifierTable:
     def addIdentifier(self, nom : str, carac: IdentifierCarac):
         """this method is used to add an identifier to the table."""
 
-        if nom not in self.__dict__:
-            self.__dict__[nom] = carac
+        if nom not in self.tbl:
+            self.tbl[nom] = carac
 
         else:
             raise Exception("Identifier already exists")
@@ -101,8 +101,8 @@ class IdentifierTable:
     def deleteIdentifier(self, identifierName: str):
         """this method is used to delete an identifier from the table."""
 
-        if identifierName in self.__dict__:
-            del self.__dict__[identifierName]
+        if identifierName in self.tbl:
+            del self.tbl[identifierName]
 
         else:
             raise Exception("Identifier does not exist")
@@ -110,8 +110,8 @@ class IdentifierTable:
     def getIdentifier(self, name: str):
         """this method is used to get an identifier from the table."""
 
-        if name in self.__dict__:
-            return self.__dict__[name]
+        if name in self.tbl:
+            return self.tbl[name]
 
         else:
             raise Exception("Identifier does not exist")    
@@ -119,7 +119,7 @@ class IdentifierTable:
     def getTable(self):
         """this method is used to get the table."""
 
-        return self.__dict__
+        return self.tbl
     
     def printTable(self):
         """AI GENERATED FUNCTION
@@ -138,7 +138,7 @@ class IdentifierTable:
                 str(identifier.address),
                 str(identifier.value)
             ]
-            for identifier in self.__dict__.values()
+            for identifier in self.tbl.values()
             if type(identifier) != int
         ]
 
