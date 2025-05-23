@@ -414,10 +414,10 @@ class Grammar:
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
                 elif var_scope == "local":
-                    self.comp.add_instruction('empilerAd', var_static_addr)
+                    self.comp.add_instruction('empiler', var_static_addr)
                 else:
                     self.comp.add_instruction('empiler', var_static_addr)
-                print(var_name + " is a " + var_scope)
+
                 self.expression()
                 self.comp.add_instruction('affectation')
                 self.logger.debug("parsed affectation")
@@ -689,10 +689,11 @@ class Grammar:
                 var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
                 var_static_addr = self.id_table.tbl[var_name].address
                 var_scope = self.id_table.tbl[var_name].scope
+
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
                 elif var_scope == "local":
-                    self.comp.add_instruction('empilerAd', var_static_addr)
+                    self.comp.add_instruction('empiler', var_static_addr)
                 else :
                     self.comp.add_instruction('empiler', var_static_addr)
                 self.comp.add_instruction('valeurPile')
@@ -784,7 +785,7 @@ class Grammar:
         # Compiling the loop body
         self.suiteInstr()
         
-        self.comp.add_instruction("tra", ad1)
+        self.comp.add_instruction("tra", ad1 + 1)
         ad2 = self.comp.get_current_address() + 2
         self.comp.set_instruction_args(tze_addr, (ad2,))
 
