@@ -59,7 +59,7 @@ class Grammar:
         self.logger = get_logger('ANASYN', debug_lvl)
         
         #---Set up the scope
-        self.scope = "global"
+        self.current_scope = "global"
 
     def create_lexical_analyser(self, src_code: str):
         '''Creates the lexical analyser.'''
@@ -101,6 +101,7 @@ class Grammar:
         self.logger.debug("Name of program : " + ident)
         self.current_scope = "global" #Scope du programme principal
         self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)) #Ajout dans la table des identificateurs
+        self.comp.new_identifier()
         
     def  corpsProgPrinc(self):
         '''
@@ -171,14 +172,15 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of procedure : " + ident)
-        self.current_scope = "local" #Scope de la procédure
+        self.current_scope = "global"
         self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)) #Ajout dans la table des identificateurs
-
         self.partieFormelle()
 
+        self.current_scope = "local" #Scope des variables locales
         self.lexical_analyser.acceptKeyword("is")
         self.corpsProc()
         self.comp.add_instruction('retourProc')
+        self.current_scope = "global" #Scope remis à global pour le programme principal
 
     def fonction(self):
         '''
@@ -189,16 +191,21 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of function : " + ident)
-        self.current_scope = "local" #Scope de la fonction
+        self.current_scope = "global" #Scope de la fonction
         self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.FUNCTION, ident, self.current_scope)) #Ajout dans la table des identificateurs
         
+        self.current_scope = "parameter" #Scope des paramètres de la fonction
         self.partieFormelle()
 
         self.lexical_analyser.acceptKeyword("return")
         self.nnpType()
 
+        self.current_scope = "local" #Scope des variables locales
         self.lexical_analyser.acceptKeyword("is")
         self.corpsFonct()
+
+        self.comp.add_instruction('retourFonct')
+        self.current_scope = "global" #Scope remis à global pour le programme principal
 
     def corpsProc(self):
         '''
@@ -206,6 +213,7 @@ class Grammar:
         '''
 
         if not self.lexical_analyser.isKeyword("begin"):
+            self.current_scope = "local" #Scope de la procédure
             self.partieDeclaProc()
 
         self.lexical_analyser.acceptKeyword("begin")
@@ -218,6 +226,7 @@ class Grammar:
         '''
 
         if not self.lexical_analyser.isKeyword("begin"):
+            self.current_scope = "local" #Scope de la fonction
             self.partieDeclaProc()
 
         self.lexical_analyser.acceptKeyword("begin")
@@ -253,6 +262,7 @@ class Grammar:
         '''
 
         # self.listeIdent()
+        self.current_scope = "parameter" #Scope de la variable du programme principal
         self.listeIdentParam()
         self.lexical_analyser.acceptCharacter(":")
 
@@ -274,13 +284,17 @@ class Grammar:
             self.logger.debug("in out parameter")
             for key, value in self.id_table.tbl.items():
                 if value.scope == "parameter":
-                    self.id_table.tbl[key].isOut = True
+                    value.isIn = True
+                    value.isOut = True
+                    value.scope = "parameter"
 
         else:
             self.logger.debug("in parameter")
             for key, value in self.id_table.tbl.items():
                 if value.scope == "parameter":
-                    self.id_table.tbl[key].isIn = True
+                    value.isIn = True
+                    value.isOut = False
+                    value.scope = "local"
 
     def nnpType(self):
         '''
@@ -295,7 +309,6 @@ class Grammar:
                 if value.type == "NONE":
                     # self.id_table.tbl[key].type = "integer"
                     value.type = "integer"
-
 
         elif self.lexical_analyser.isKeyword("boolean"):
             self.lexical_analyser.acceptKeyword("boolean")
@@ -345,19 +358,17 @@ class Grammar:
 
         ident = self.lexical_analyser.acceptIdentifier()
         self.logger.debug("identifier found: "+str(ident))
-        self.current_scope = "global" #Scope de la variable du programme principal
         self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, self.current_scope)) #Ajout dans la table des identificateurs
-
 
         self.comp.new_identifier()
 
         if self.lexical_analyser.isCharacter(","):
             self.lexical_analyser.acceptCharacter(",")
-            self.listeIdent()
+            self.listeIdent()   
 
     def listeIdentParam(self):
         '''
-        TODO: description
+        TODO: description   
         '''
 
         ident = self.lexical_analyser.acceptIdentifier()
@@ -365,7 +376,6 @@ class Grammar:
         self.logger.debug("identifier found: " + str(ident))
         self.current_scope = "parameter" #Scope de la variable du programme principal
         self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, self.current_scope)) #Ajout dans la table des identificateurs
-
         
         if self.lexical_analyser.isCharacter(","):
             self.lexical_analyser.acceptCharacter(",")
@@ -927,8 +937,6 @@ def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lv
         if debug_lvl == logging.DEBUG:
             print('No instruction generated!')
             
-    #G.id_table.printTable()
-    
     #-Close file
     if fn_out != '':
         output_file.close()
