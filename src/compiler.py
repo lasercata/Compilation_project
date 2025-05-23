@@ -86,6 +86,7 @@ class Compiler:
         '''
 
         self.identifiers_count += 1
+        print(self.identifiers_count)
 
 
     def add_reserver_instruction(self):
