@@ -114,15 +114,4 @@ class Compiler:
 
         self.add_instruction('traStat', (ad_p,self.parameters_count))
         self.parameters_count = 0
-'''
-##-Tests
-if __name__ == '__main__':
-    c = Compiler()
-    c.add_instruction('debutProg')
-    c.add_instruction('empiler', 3)
-    c.add_instruction('finProg')
 
-    print(c.instructions)
-
-    print(c)
-'''
