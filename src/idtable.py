@@ -89,14 +89,25 @@ class IdentifierTable:
 
         self.adressCounter = adressCounter
     
-    def addIdentifier(self, nom : str, carac: IdentifierCarac):
-        """this method is used to add an identifier to the table."""
+    def addIdentifier(self, nom: str, carac: IdentifierCarac):
+        """Add an identifier to the table, with automatic address assignment"""
 
-        if nom not in self.tbl:
-            self.tbl[nom] = carac
+        if nom in self.tbl:
+            raise Exception(f"Identifier '{nom}' already exists.")
 
-        else:
-            raise Exception("Identifier already exists")
+        # Automatic address assignment
+        if carac.address is None:
+            if not hasattr(self, "address_counters"):
+                self.address_counters = {}
+
+            if carac.scope not in self.address_counters:
+                self.address_counters[carac.scope] = 0
+
+            carac.address = self.address_counters[carac.scope]
+            self.address_counters[carac.scope] += 1
+
+        self.tbl[nom] = carac
+
     
     def deleteIdentifier(self, identifierName: str):
         """this method is used to delete an identifier from the table."""
@@ -117,24 +128,24 @@ class IdentifierTable:
             raise Exception("Identifier does not exist")    
     
     def getTable(self):
-        """this method is used to get the table."""
-
-        return self.tbl
+        """this method returns only the identifier entries (filters out internal variables)."""
+        
+        return {k: v for k, v in self.tbl.items() if isinstance(v, IdentifierCarac)}
     
     def printTable(self):
-        """AI GENERATED FUNCTION
-        This method is used to print the table."""
+        
+        """AI GENERATED METHOD Prints the table of identifiers."""
 
         headers = ["name", "type", "scope", "In", "Out", "address", "value"]
 
-        # Construction de la liste des lignes à partir des objets
+        # Construction de la liste des lignes à partir des objets IdentifierCarac
         rows = [
             [
                 str(identifier.name),
                 str(identifier.type),
                 str(identifier.scope),
-                str(identifier.isIn),   # on suppose que le champ s'appelle 'in_'
-                str(identifier.isOut),   # on suppose que le champ s'appelle 'out'
+                str(identifier.isIn),
+                str(identifier.isOut),
                 str(identifier.address),
                 str(identifier.value)
             ]
@@ -162,4 +173,5 @@ class IdentifierTable:
         for row in rows:
             print(format_row(row))
         print(separator)
+
 

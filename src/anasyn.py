@@ -96,8 +96,8 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of program : " + ident)
-        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE,ident, "global", None, None, 0, 0)) #Ajout dans la table des identificateurs
-
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, "global")) #Ajout dans la table des identificateurs
+        
     def  corpsProgPrinc(self):
         '''
         <corpsProgPrinc> -> <partieDecla> begin <suiteInstr> end. | begin <suiteInstr> end.
@@ -167,7 +167,7 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of procedure : " + ident)
-        self.id_table.addIdentifier(ident, IdentifierCarac("procedure", ident, "local",  None, None, 0, 0)) #Ajout dans la table des identificateurs
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, "local")) #Ajout dans la table des identificateurs
 
         self.partieFormelle()
 
@@ -184,8 +184,8 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of function : " + ident)
-        self.id_table.addIdentifier(ident, IdentifierCarac("function", ident, "local", None, None, 0, 0)) #Ajout dans la table des identificateurs
-
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.FUNCTION, ident, "local")) #Ajout dans la table des identificateurs
+        
         self.partieFormelle()
 
         self.lexical_analyser.acceptKeyword("return")
@@ -288,7 +288,8 @@ class Grammar:
             self.logger.debug("integer type")
             for key, value in self.id_table.tbl.items():
                 if value.type == "NONE":
-                    self.id_table.tbl[key].type = "integer"
+                    # self.id_table.tbl[key].type = "integer"
+                    value.type = "integer"
 
 
         elif self.lexical_analyser.isKeyword("boolean"):
@@ -297,7 +298,8 @@ class Grammar:
             self.logger.debug("boolean type")
             for key, value in self.id_table.tbl.items():
                 if value.type == "NONE":
-                    self.id_table.tbl[key].type = "boolean" 
+                    # self.id_table.tbl[key].type = "boolean" 
+                    value.type = "boolean"
 
         else:
             self.logger.error("Unknown type found <" + self.lexical_analyser.get_value() + ">!")
@@ -338,8 +340,8 @@ class Grammar:
 
         ident = self.lexical_analyser.acceptIdentifier()
         self.logger.debug("identifier found: "+str(ident))
-        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "local", None, None, self.id_table.getAdressCounter(), 0)) #Ajout dans la table des identificateurs
-        self.id_table.setAdressCounter(self.id_table.adressCounter + 1)
+        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "local")) #Ajout dans la table des identificateurs
+
 
         self.comp.new_identifier()
 
@@ -355,11 +357,13 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("identifier found: " + str(ident))
-        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "parameter", None, None, 0, 0)) #Ajout dans la table des identificateurs
+        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "parameter")) #Ajout dans la table des identificateurs
+
         
         if self.lexical_analyser.isCharacter(","):
             self.lexical_analyser.acceptCharacter(",")
             self.listeIdentParam()
+ 
 
     def suiteInstrNonVide(self):
         '''
@@ -888,7 +892,9 @@ def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lv
     else:
         if debug_lvl == logging.DEBUG:
             print('No instruction generated!')
-
+            
+    #G.id_table.printTable()
+    
     #-Close file
     if fn_out != '':
         output_file.close()
