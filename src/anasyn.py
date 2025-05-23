@@ -403,7 +403,7 @@ class Grammar:
             if self.lexical_analyser.isSymbol(":="):                
                 # affectation
                 self.lexical_analyser.acceptSymbol(":=")
-                self.comp.add_instruction("empiler", ("ad(a)"))
+                self.comp.add_instruction("empiler", ("ad(a)")) #TODO: calculate ad(a) and put its value instead !
                 self.expression()
                 self.comp.add_instruction('affectation')
                 self.logger.debug("parsed affectation")
@@ -417,7 +417,7 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
-                self.comp.add_trastat_instruction("ad(p)")
+                self.comp.add_trastat_instruction("ad(p)") #TODO: calculate ad(p) and put its value instead !
 
             else:
                 self.logger.error("Expecting procedure call or affectation!")
