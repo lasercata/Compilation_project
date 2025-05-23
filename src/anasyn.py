@@ -429,10 +429,11 @@ class Grammar:
                 var_static_addr = self.id_table.tbl[var_name].address
 
                 var_scope = self.id_table.tbl[var_name].scope
+                print(var_name + " is a " + var_scope)
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
                 elif var_scope == "local":
-                    self.comp.add_instruction('empiler', var_static_addr)
+                    self.comp.add_instruction('empilerAd', var_static_addr)
                 else:
                     self.comp.add_instruction('empiler', var_static_addr)
 
@@ -711,7 +712,7 @@ class Grammar:
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
                 elif var_scope == "local":
-                    self.comp.add_instruction('empiler', var_static_addr)
+                    self.comp.add_instruction('empilerAd', var_static_addr)
                 else :
                     self.comp.add_instruction('empiler', var_static_addr)
                 self.comp.add_instruction('valeurPile')
