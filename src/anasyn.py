@@ -57,6 +57,9 @@ class Grammar:
 
         #---Set up self.logger
         self.logger = get_logger('ANASYN', debug_lvl)
+        
+        #---Set up the scope
+        self.scope = "global"
 
     def create_lexical_analyser(self, src_code: str):
         '''Creates the lexical analyser.'''
@@ -96,7 +99,8 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of program : " + ident)
-        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, "global")) #Ajout dans la table des identificateurs
+        self.current_scope = "global" #Scope du programme principal
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)) #Ajout dans la table des identificateurs
         
     def  corpsProgPrinc(self):
         '''
@@ -167,7 +171,8 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of procedure : " + ident)
-        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, "local")) #Ajout dans la table des identificateurs
+        self.current_scope = "local" #Scope de la procédure
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)) #Ajout dans la table des identificateurs
 
         self.partieFormelle()
 
@@ -184,7 +189,8 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of function : " + ident)
-        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.FUNCTION, ident, "local")) #Ajout dans la table des identificateurs
+        self.current_scope = "local" #Scope de la fonction
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.FUNCTION, ident, self.current_scope)) #Ajout dans la table des identificateurs
         
         self.partieFormelle()
 
@@ -340,7 +346,8 @@ class Grammar:
 
         ident = self.lexical_analyser.acceptIdentifier()
         self.logger.debug("identifier found: "+str(ident))
-        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "local")) #Ajout dans la table des identificateurs
+        self.current_scope = "global" #Scope de la variable du programme principal
+        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, self.current_scope)) #Ajout dans la table des identificateurs
 
 
         self.comp.new_identifier()
@@ -357,7 +364,8 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("identifier found: " + str(ident))
-        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "parameter")) #Ajout dans la table des identificateurs
+        self.current_scope = "parameter" #Scope de la variable du programme principal
+        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, self.current_scope)) #Ajout dans la table des identificateurs
 
         
         if self.lexical_analyser.isCharacter(","):
