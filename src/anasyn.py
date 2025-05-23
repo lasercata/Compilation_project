@@ -614,8 +614,12 @@ class Grammar:
 
             else:
                 self.logger.debug("Use of an identifier as an expression: " + ident)
-                self.comp.add_instruction('empiler','ad('+ident+')')
-                self.comp.add_instruction('valeurPile')
+                scope = table[ident].getScope()
+                if (scope == 'locale'):
+                    self.comp.add_instruction('empilerAd','as('+ident+')')
+                else:
+                    self.comp.add_instruction('empiler','as('+ident+')')
+                #self.comp.add_instruction('valeurPile')
         else:
             self.logger.error("Unknown Value!")
             raise AnaSynException("Unknown Value!")
