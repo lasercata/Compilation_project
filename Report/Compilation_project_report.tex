@@ -1,0 +1,245 @@
+\documentclass[a4paper, 12pt]{article}
+
+%------Lang
+\usepackage[french]{babel}
+
+%------base
+\input{style/latex_base.sty}
+
+% \input{data/data_template.sty}
+\input{data/data.sty}
+
+%------Packages
+\usepackage{graphicx} % Required for inserting images
+
+%------Title
+\title{Mini-projet de compilation - Rapport}
+\author{
+    \Names
+}
+\date{Mai 2025}
+
+\begin{document}
+    %---Title
+    \maketitle
+
+    \begin{center}
+        \includegraphics[width=0.5\linewidth]{pics/illustration.png}
+    \end{center}
+
+    \newpage
+
+    \tableofcontents
+    %\listoffigures
+    %\listoftables
+    \lstlistoflistings
+
+    \newpage
+
+    %---Document
+    \section{Table des identificateurs}
+
+    Dans le cadre de ce projet, nous avons mis en place une structure appelée \texttt{IdentifierTable} destinée à gérer les informations associées à chaque identifiant du programme NILNOVI : variables, constantes, fonctions, procédures, etc.).
+
+    \subsection{Motivations et rôle}
+    La table des identificateurs constitue une structure essentielle au compilateur. Elle permet de : 
+    \begin{itemize}
+        \item mémoriser les caractéristiques des entités déclarées dans le code source, 
+        \item garentir l'unicité et la validité des déclarations,
+        \item associer chaque identifiant à une adresse mémoire statique, 
+        \item résoudre les identifiants lors de la génération du code intermédiaire,
+    \end{itemize}
+
+    \subsection{Structure interne}
+    Chaque identifiant est représenté par un objet de la classe \texttt{IdentifierCarac}, avec les champs suivants : 
+    \begin{itemize}
+        \item \texttt{name} : nom de l'identifiant 
+        \item \texttt{type} : \texttt{integer}, \texttt{boolean}, \texttt{procedure} ou \texttt{fonction},
+        \item \texttt{scope} : \texttt{global}, \texttt{local} ou \texttt{parameter},
+        \item \texttt{isIn}/\texttt{isOut} : booléens pour les paramètres,
+        \item \texttt{value} : valeur associée 
+    \end{itemize}
+
+    Un compteur d'adresse est maintenu pour chaque portée afin d'attribuer automatiquement une position dans la pile, unique à chaque identifiant lors de son insertion. 
+
+    \subsection{Fonctionnement à la compilation}
+
+    L'ajout d'identifiants dans la table est effectué à l'analyse syntaxique, via des appels comme :
+    \begin{lstlisting}[language=python, xleftmargin=20pt]
+ident = IdentifierCarac(IdentifierType.INTEGER, "x", scope="local")
+id_table.addIdentifier("x", ident)} \end{lstlisting}
+
+    Ainsi, la correspondance entre les identifiants et les emplacements mémoire du programme est assurée de manière fiable et centralisée. 
+
+    \subsection{Affichage et débogage}
+
+    Une méthode \texttt{printTable} permet de visualiser l'état complet de la table, y compris les types, adresses, et valeurs, ce qui peut s'avérer utile pour le développement et le débogage du compilateur.
+
+    \begin{center}
+        \begin{tabular}{|l|l|l|l|l|l|l|}
+            \hline
+            \textbf{name} & \textbf{type} & \textbf{scope} & \textbf{In} & \textbf{Out} & \textbf{address} & \textbf{value} \\
+            \hline
+            x & integer & global & None & None & 0 & 5 \\
+            y & boolean & local & None & None & 0 & None \\
+            n & integer & parameter & True & False & 0 & None \\
+            \hline
+        \end{tabular}
+    \end{center}
+
+    \section{Compilateur}
+
+    Dans le cadre de ce projet, nous avons développé une classe \texttt{Compiler} permettant de gérer la génération du code objet de notre analyseur syntaxique.
+
+    \subsection{Classe \texttt{Compiler}}
+
+    La classe \texttt{Compiler} a pour rôle de stocker les instructions générées pendant l'analyse syntaxique. Elle contient une liste d'instructions, \texttt{self.instructions}, dans laquelle sont ajoutées toutes les opérations nécessaires à l'exécution du programme source. Ces instructions sont ajoutées via la méthode \texttt{add\_instruction(name, *args)} qui vérifie que l'instruction est bien définie dans la liste \texttt{compiled\_possible\_instructions}, puis l’ajoute à la séquence.
+
+    Cette classe offre également plusieurs méthodes auxiliaires permettant :
+
+    \begin{itemize}
+        \item de connaître l'adresse actuelle dans la mémoire des instructions (\texttt{get\_current\_address}),
+        \item de modifier les arguments d'une instruction déjà insérée (\texttt{set\_instruction\_args}),
+        \item de gérer les allocations mémoire avec \texttt{new\_identifier} et \texttt{add\_reserver\_instruction},
+        \item d'empiler le nombre de paramètres pour les appels de fonctions et procédures avec \texttt{new\_param} et \texttt{add\_trastat\_instruction}.
+    \end{itemize}
+
+    \subsection{Intégration dans la classe \texttt{Grammar}}
+
+    La classe \texttt{Grammar}, issue du fichier \texttt{anasyn.py}, contient les règles de grammaire de notre langage. C’est dans cette classe que les appels à \texttt{Compiler} sont effectués aux moments appropriés.
+
+    Par exemple, dans la méthode \texttt{program}, correspondant à la règle $<$program$>$, on insère les instructions \texttt{debutProg} et \texttt{finProg} pour marquer respectivement le début et la fin du programme :
+
+    \begin{lstlisting}[language=python, xleftmargin=20pt]
+self.comp.add_instruction('debutProg')
+...
+self.comp.add_instruction('finProg') \end{lstlisting}
+
+    De même, lors de la déclaration de procédures et fonctions, les instructions \texttt{retourProc} et \texttt{retourFonct} sont ajoutées pour indiquer la fin de leur exécution.
+
+    Cette organisation permet de lier directement la structure syntaxique du langage aux instructions de bas niveau qui seront ensuite interprétées ou traduites.
+
+    \subsection{Conclusion}
+
+    Cette séparation entre la grammaire et la génération du code assure une meilleure modularité du projet. La classe \texttt{Compiler} agit comme un gestionnaire de code objet, tandis que la classe \texttt{Grammar} applique la logique syntaxique et structurelle du langage en déléguant la génération de code à \texttt{Compiler}.
+
+    \newpage
+
+    \section{Machine Virtuelle}
+
+    Cette section présente l'implémentation d'une machine virtuelle (VM) pour l'exécution du code objet généré par le compilateur précédemment décrit pour le langage Nilnovi. Cette VM agit comme un interpréteur capable d'exécuter des instructions de bas niveau représentant des programmes écrits en Nilnovi et Nilnovi procédural.
+
+    \subsection{Architecture Générale}
+
+    Le code de la machine virtuelle Nilnovi est structuré autour de plusieurs composants principaux : la classe VM (cœur de l'interpréteur), la classe Stack (structure de pile avec accès indexé), le système de mémoire (pile d'exécution et tas) basée sur la classe Stack, et le moteur d'exécution (boucle principale d'interprétation).
+
+    La classe \texttt{VM} encapsule l'état complet de la machine virtuelle avec les variables d'état principales : \texttt{stack} (pile d'exécution principale), \texttt{heap} (tas pour l'allocation dynamique), \texttt{base} (pointeur de base pour les blocs d'activation), et \texttt{co} (compteur ordinal/instruction pointer).
+
+    \begin{lstlisting}[caption=Structure principale de la VM,language=python, xleftmargin=20pt]
+class VM:
+    def debutProg(self):
+        self.stack = Stack()
+        self.heap = Stack()
+        self.base = 0 \end{lstlisting}
+
+    \subsection{Gestion de la Mémoire}
+
+    La classe \texttt{Stack} implémente une pile avec accès indexé, permettant les opérations classiques (\texttt{push()}, \texttt{pop()}, \texttt{summit()}) ainsi que l'accès direct (\texttt{get\_value\_at()}, \texttt{set\_value\_at()}) avec gestion automatique du pointeur de sommet.
+
+    \begin{lstlisting}[caption=Implémentation de la pile,language=python, xleftmargin=20pt]
+def push(self, v: Any) -> None:
+    self.stack.append(v)
+    self.ip += 1
+
+def pop(self) -> Any:
+    if self.ip == -1:
+        raise ValueError('Cannot pop an empty stack !')
+    ret = self.stack[self.ip]
+    del self.stack[self.ip]
+    self.ip -= 1
+    return ret \end{lstlisting}
+
+    La VM utilise un modèle mémoire à deux zones : la pile pour le stockage des variables locales, paramètres et valeurs temporaires, et le tas pour l'allocation dynamique des objets et structures complexes. L'adressage suit le schéma classique avec \texttt{base} comme référence pour les blocs d'activation.
+
+    \subsection{Jeu d'Instructions}
+
+    Le jeu d'instructions de la VM couvre plusieurs catégories d'opérations :
+
+    \subsubsection{Opérations de Base et Mémoire}
+    Les opérations de gestion de pile incluent \texttt{reserver(n)} pour réserver n emplacements, \texttt{empiler(val)} pour empiler une valeur, et \texttt{empilerAd(addr)} pour empiler une adresse relative à la base. Les opérations mémoire comprennent \texttt{affectation()} pour affecter une valeur à une adresse et \texttt{valeurPile()} pour déréférencer une adresse.
+
+    \subsubsection{Opérations Arithmétiques et Booléennes}
+    La VM supporte l'ensemble des opérations arithmétiques (addition, soustraction, multiplication, division, négation) et booléennes (comparaisons, opérations logiques ET/OU/NON).
+
+    \begin{lstlisting}[caption=Exemple d'opération arithmétique,language=python, xleftmargin=20pt]
+def add(self):
+    """Addition: pop op2 et op1, push op1 + op2"""
+    op2 = self.stack.pop()
+    op1 = self.stack.pop()
+    self.stack.push(op1 + op2) \end{lstlisting}
+
+    \subsubsection{Instructions de saut}
+    Les instructions de saut incluent \texttt{tra(addr)} pour un saut inconditionnel et \texttt{tze(addr)} pour un saut conditionnel si le sommet de la pile est faux. La gestion des adresses tient compte de l'indexation interne avec des ajustements appropriés.
+
+    \subsection{Gestion des Procédures et Fonctions}
+
+    La VM implémente un mécanisme complet de gestion des appels avec \texttt{traStat(a, nbp)} pour les appels statiques, \texttt{reserverBloc()} pour la préparation des blocs d'activation, \texttt{retourProc()} pour le retour de procédure, et \texttt{retourFonct()} pour le retour de fonction avec valeur. Le passage de paramètres est géré via \texttt{empilerParam(ad)} avec calcul d'adresses relatives à \texttt{base}.
+
+    \subsection{Support Orienté Objet}
+
+    La VM supporte les constructeurs d'objets avec \texttt{traConstr(ad, nbP)} pour l'appel de constructeur, \texttt{retourConstr()} pour le retour, et allocation automatique dans le tas. Les opérations sur le tas incluent \texttt{empilerTas(val)}, \texttt{empilerIpTas()} pour récupérer l'adresse courante, et \texttt{empilerAdAt(v)} pour l'accès aux attributs d'objets.
+
+    \subsection{Système de Debug}
+
+    La VM intègre un système de debug à trois niveaux : niveau 0 (aucun debug), niveau 1 (affichage formaté avec état détaillé de la pile, pointeurs, et instruction courante), et niveau 2 (logging avec horodatage). Le mode debug niveau 1 affiche l'état complet de la pile avec marqueurs (TOP, BASE), les valeurs des pointeurs, l'instruction courante avec paramètres, et l'état du tas.
+
+    \subsection{Parsing et Exécution}
+
+    Les instructions Nilnovi suivent le format \texttt{instruction(param1,param2,...)}. La fonction 
+
+    \texttt{parse\_nilnovi\_object\_line()} décompose chaque instruction en séparant le nom de l'instruction et ses paramètres numériques. 
+
+    \begin{lstlisting}[caption=Parsing d'instruction,language=python, xleftmargin=20pt]
+def parse_nilnovi_object_line(line: str) -> list[str | int]:
+    ret = []
+    line = line.strip('\n')
+    
+    if '()' in line or '(' not in line:
+        return [line.strip('()')]
+    
+    ret.append(line[:line.index('(')])
+    arguments_str = line[line.index('(') + 1:line.index(')')]
+    args = arguments_str.split(',')
+    
+    for arg in args: 
+        ret.append(int(arg))
+    
+    return ret \end{lstlisting}
+
+    La boucle d'exécution principale implémente le cycle fetch-decode-execute classique avec gestion des exceptions. L'exécution utilise la réflexion Python pour dispatcher dynamiquement les instructions vers les méthodes correspondantes. Celle-ci nous permet d'éviter d'avoir une boucle principale avec un \texttt{switch} et énormément de \texttt{cases} pour savoir quelle opération appeler.
+
+    \begin{lstlisting}[caption=Dispatch dynamique des instructions,language=python, xleftmargin=20pt]
+def execute_instruction(self, instruction):
+    nom_instr = instruction[0]
+    
+    if hasattr(self, nom_instr):
+        method = getattr(self, nom_instr)
+        if len(instruction) > 1:
+            method(*instruction[1:])
+        else:
+            method()
+    else:
+        raise ValueError(f"Unknown instruction: {nom_instr}") \end{lstlisting}
+
+    \subsection{Gestion des Erreurs et Performances}
+
+    La VM gère plusieurs types d'erreurs : erreurs de pile (pile vide, débordement), erreurs d'adressage (adresses invalides), instructions inconnues, et erreurs runtime. Les erreurs sont propagées via le système d'exceptions Python avec des messages explicites.
+
+    En termes de performances, l'exécution d'instruction est en O(1) pour la plupart des opérations, l'accès mémoire est en O(1) grâce à l'indexation directe, et le parsing est en O(n) où n est la longueur de l'instruction. Des optimisations possibles incluent le pre-parsing des instructions au chargement et le cache des méthodes fréquemment utilisées.
+
+    \subsection{Limitations et Extensions}
+
+    Les limitations actuelles incluent l'absence de garbage collection automatique, une gestion basique des types, un système d'E/S minimal, et pas de gestion des exceptions utilisateur. Les extensions possibles comprennent le support des nombres flottants, la gestion des chaînes de caractères, un système de modules, une interface de debug interactive, et des optimisations JIT.
+
+    Cette implémentation constitue une base solide pour l'exécution de programmes Nilnovi compilés, avec une architecture modulaire permettant des évolutions futures et un système de debug facilitant le développement et la maintenance.
+\end{document}
