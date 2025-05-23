@@ -10,7 +10,7 @@ class Compiler:
         "valeurPile", "get", "put", "moins", "sous", "add", "mult", "div", "egal", "diff",
         "inf", "infegal", "sup", "supeg", "et", "ou", "non", "tra", "tze", "erreur",
         "empilerTas", "empilerIpTas", "empilerAdAt", "reserverBloc", "retourConstr",
-        "retourFonct", "retourProc", "empilerParam", "traConstr", "traVirt"
+        "retourFonct", "retourProc", "empilerParam", "traConstr", "traVirt", "traStat"
     ]
     
     def __init__(self):
