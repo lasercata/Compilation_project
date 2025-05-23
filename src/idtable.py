@@ -106,7 +106,7 @@ class IdentifierTable:
             carac.address = self.address_counters[carac.scope]
             self.address_counters[carac.scope] += 1
 
-        self.__dict__[nom] = carac
+        self.tbl[nom] = carac
 
     
     def deleteIdentifier(self, identifierName: str):
@@ -130,7 +130,7 @@ class IdentifierTable:
     def getTable(self):
         """this method returns only the identifier entries (filters out internal variables)."""
         
-        return {k: v for k, v in self.__dict__.items() if isinstance(v, IdentifierCarac)}
+        return {k: v for k, v in self.tbl.items() if isinstance(v, IdentifierCarac)}
     
     def printTable(self):
         
