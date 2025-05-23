@@ -76,7 +76,7 @@ class IdentifierTable:
     def __init__(self):
         """this method is used to initialize a table for identifiers."""
 
-        self.tbl: Dict[str, IdentifierCarac]={} #initializing the table as a dictionary containing the identifiers as keys and their characteristics as values.
+        self.tbl: Dict[str, IdentifierCarac] = {} #initializing the table as a dictionary containing the identifiers as keys and their characteristics as values.
         self.adressCounter = 0 #this variable is used to keep track of the address of the identifiers in memory.
 
     def getAdressCounter(self):

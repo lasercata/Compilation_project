@@ -403,7 +403,11 @@ class Grammar:
             if self.lexical_analyser.isSymbol(":="):                
                 # affectation
                 self.lexical_analyser.acceptSymbol(":=")
-                self.comp.add_instruction("empiler", ("ad(a)")) #TODO: calculate ad(a) and put its value instead !
+
+                var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 2].value
+                var_static_addr = self.id_table.tbl[var_name].address
+
+                self.comp.add_instruction("empiler", var_static_addr)
                 self.expression()
                 self.comp.add_instruction('affectation')
                 self.logger.debug("parsed affectation")
@@ -661,7 +665,11 @@ class Grammar:
 
             else:
                 self.logger.debug("Use of an identifier as an expression: " + ident)
-                self.comp.add_instruction('empiler','ad('+ident+')')
+
+                var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
+                var_static_addr = self.id_table.tbl[var_name].address
+
+                self.comp.add_instruction('empiler', var_static_addr) #TODO: I am not sure that is this correct. Cf the two lines above.
                 self.comp.add_instruction('valeurPile')
         else:
             self.logger.error("Unknown Value!")
@@ -675,7 +683,7 @@ class Grammar:
         if self.lexical_analyser.isInteger():
             entier = self.lexical_analyser.acceptInteger()
             self.logger.debug("integer value: " + str(entier))
-            self.comp.add_instruction("empiler",entier)
+            self.comp.add_instruction("empiler", entier)
             return "integer"
 
         elif self.lexical_analyser.isKeyword("true") or self.lexical_analyser.isKeyword("false"):
@@ -846,12 +854,12 @@ def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lv
     #---Run the analysis
     G = Grammar(file_content, debug_lvl)
 
-    # try:
-    instructions_str = G.compile(show_ident_table)
+    try:
+        instructions_str = G.compile(show_ident_table)
 
-    # except SyntaxError as err:
-    #     print(f'Syntax error: {err}')
-    #     return
+    except SyntaxError as err:
+        print(f'Syntax error: {err}')
+        return
 
     #---Write to file / stdout
     #-Select file or stdout
