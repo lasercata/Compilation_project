@@ -825,15 +825,15 @@ class Grammar:
         
             # Modifying the tze parameter
             ad1 += 1
-            self.comp.set_instruction_args(tze_addr, (ad1,))
+            self.comp.set_instruction_args(tze_addr, (ad1 + 1,))
             
             self.suiteInstr()
             
             ad2 = self.comp.get_current_address() + 1
-            self.comp.set_instruction_args(tra_addr, (ad2,))
+            self.comp.set_instruction_args(tra_addr, (ad2 + 1,))
 
         else:
-            self.comp.set_instruction_args(tze_addr, (ad1,))
+            self.comp.set_instruction_args(tze_addr, (ad1 + 1,))
 
         self.lexical_analyser.acceptKeyword("end")
         self.logger.debug("end of if")
