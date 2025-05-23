@@ -45,9 +45,10 @@
     La table des identificateurs constitue une structure essentielle au compilateur. Elle permet de : 
     \begin{itemize}
         \item mémoriser les caractéristiques des entités déclarées dans le code source, 
-        \item garentir l'unicité et la validité des déclarations,
+        \item garantir l'unicité et la validité des déclarations,
         \item associer chaque identifiant à une adresse mémoire statique, 
-        \item résoudre les identifiants lors de la génération du code intermédiaire,
+        \item résoudre les identifiants lors de la génération du code objet,
+        \item réaliser une analyse sémantique
     \end{itemize}
 
     \subsection{Structure interne}
@@ -60,6 +61,8 @@
         \item \texttt{value} : valeur associée 
     \end{itemize}
 
+    \vspace{12pt}
+    
     Un compteur d'adresse est maintenu pour chaque portée afin d'attribuer automatiquement une position dans la pile, unique à chaque identifiant lors de son insertion. 
 
     \subsection{Fonctionnement à la compilation}
@@ -235,11 +238,12 @@ def execute_instruction(self, instruction):
 
     La VM gère plusieurs types d'erreurs : erreurs de pile (pile vide, débordement), erreurs d'adressage (adresses invalides), instructions inconnues, et erreurs runtime. Les erreurs sont propagées via le système d'exceptions Python avec des messages explicites.
 
-    En termes de performances, l'exécution d'instruction est en O(1) pour la plupart des opérations, l'accès mémoire est en O(1) grâce à l'indexation directe, et le parsing est en O(n) où n est la longueur de l'instruction. Des optimisations possibles incluent le pre-parsing des instructions au chargement et le cache des méthodes fréquemment utilisées.
+    En termes de performances, l'exécution d'instruction est en $\mathcal O(1)$ pour la plupart des opérations, l'accès mémoire est en $\mathcal O(1)$ grâce à l'indexation directe, et le parsing est en $\mathcal O(n)$ où n est la longueur de l'instruction. Des optimisations possibles incluent le pré-parsing des instructions au chargement et le cache des méthodes fréquemment utilisées.
 
     \subsection{Limitations et Extensions}
 
-    Les limitations actuelles incluent l'absence de garbage collection automatique, une gestion basique des types, un système d'E/S minimal, et pas de gestion des exceptions utilisateur. Les extensions possibles comprennent le support des nombres flottants, la gestion des chaînes de caractères, un système de modules, une interface de debug interactive, et des optimisations JIT.
+    Les limitations actuelles incluent l'absence de garbage collector automatique, une gestion basique des types, un système d'E/S minimal, et pas de gestion des exceptions utilisateur. Les extensions possibles comprennent le support des nombres flottants, la gestion des chaînes de caractères, un système de modules, une interface de debug interactive, et des optimisations JIT.
 
     Cette implémentation constitue une base solide pour l'exécution de programmes Nilnovi compilés, avec une architecture modulaire permettant des évolutions futures et un système de debug facilitant le développement et la maintenance.
+
 \end{document}
