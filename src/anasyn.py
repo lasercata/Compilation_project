@@ -108,9 +108,6 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of program : " + ident)
-        self.current_scope = "global" #Scope du programme principal
-        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)) #Ajout dans la table des identificateurs
-        self.comp.new_identifier()
         
     def  corpsProgPrinc(self):
         '''
