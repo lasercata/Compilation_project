@@ -97,7 +97,6 @@ class Grammar:
 
         self.logger.debug("Name of program : " + ident)
         self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, "global")) #Ajout dans la table des identificateurs
-        self.id_table.printTable()
         
     def  corpsProgPrinc(self):
         '''
@@ -186,7 +185,6 @@ class Grammar:
 
         self.logger.debug("Name of function : " + ident)
         self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.FUNCTION, ident, "local")) #Ajout dans la table des identificateurs
-        self.id_table.printTable()
         
         self.partieFormelle()
 
@@ -343,7 +341,7 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
         self.logger.debug("identifier found: "+str(ident))
         self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "local")) #Ajout dans la table des identificateurs
-        self.id_table.printTable()
+
 
         self.comp.new_identifier()
 
@@ -360,7 +358,7 @@ class Grammar:
 
         self.logger.debug("identifier found: " + str(ident))
         self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, "parameter")) #Ajout dans la table des identificateurs
-        self.id_table.printTable()
+
         
         if self.lexical_analyser.isCharacter(","):
             self.lexical_analyser.acceptCharacter(",")
