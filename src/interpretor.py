@@ -502,6 +502,7 @@ class VM:
     
         last_line = len(self.instructions)
 
+        inst = ''
         try:
             while self.co < last_line:
                 inst = self.instructions[self.co]
@@ -517,7 +518,7 @@ class VM:
                 self.logger.debug('Program finished.')
                 return
 
-            print(f'Exception: {e}')
+            print(f'Exception at instruction #{self.co + 1} "{inst}": {e}')
        
 
 ##-Stack
