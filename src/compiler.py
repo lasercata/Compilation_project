@@ -6,9 +6,9 @@ class Compiler:
     
     # List of object code instructions
     compiled_possible_instructions = [
-        "debutProg", "finProg", "reserver", "empiler", "empilerAdresse", "affectation",
+        "debutProg", "finProg", "reserver", "empiler", "empilerAd", "affectation",
         "valeurPile", "get", "put", "moins", "sous", "add", "mult", "div", "egal", "diff",
-        "inf", "infegal", "sup", "supeg", "et", "ou", "non", "tra", "tze", "erreur",
+        "inf", "infeg", "sup", "supeg", "et", "ou", "non", "tra", "tze", "erreur",
         "empilerTas", "empilerIpTas", "empilerAdAt", "reserverBloc", "retourConstr",
         "retourFonct", "retourProc", "empilerParam", "traConstr", "traVirt", "traStat"
     ]
@@ -112,6 +112,6 @@ class Compiler:
         Adds a "traStat" instruction to the instruction list with the current parameter count.
         '''
 
-        self.add_instruction('traStat', (ad_p,self.parameters_count))
+        self.add_instruction('traStat', ad_p,self.parameters_count)
         self.parameters_count = 0
 

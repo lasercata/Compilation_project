@@ -193,7 +193,6 @@ class Grammar:
 
         self.lexical_analyser.acceptKeyword("is")
         self.corpsFonct()
-        self.comp.add_instruction('retourFonct')
 
     def corpsProc(self):
         '''
@@ -411,12 +410,21 @@ class Grammar:
                 var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 2].value
                 var_static_addr = self.id_table.tbl[var_name].address
 
-                self.comp.add_instruction("empiler", var_static_addr)
+                var_scope = self.id_table.tbl[var_name].scope
+                if var_scope == "parameter":
+                    self.comp.add_instruction('empilerParam', var_static_addr)
+                elif var_scope == "local":
+                    self.comp.add_instruction('empilerAd', var_static_addr)
+                else:
+                    self.comp.add_instruction('empiler', var_static_addr)
+                print(var_name + " is a " + var_scope)
                 self.expression()
                 self.comp.add_instruction('affectation')
                 self.logger.debug("parsed affectation")
 
             elif self.lexical_analyser.isCharacter("("):
+                var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
+                var_static_addr = self.id_table.tbl[var_name].address
                 self.comp.add_instruction('reserverBloc')
                 self.lexical_analyser.acceptCharacter("(")
                 
@@ -425,7 +433,7 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
-                self.comp.add_trastat_instruction("ad(p)") #TODO: calculate ad(p) and put its value instead !
+                self.comp.add_trastat_instruction(var_static_addr)  # TODO: calculate ad(p) and put its value instead !
 
             else:
                 self.logger.error("Expecting procedure call or affectation!")
@@ -511,7 +519,7 @@ class Grammar:
 
         elif self.lexical_analyser.isSymbol("<="):
             self.lexical_analyser.acceptSymbol("<=")
-            return 'infegal'
+            return 'infeg'
 
         elif self.lexical_analyser.isSymbol(">"):
             self.lexical_analyser.acceptSymbol(">")
@@ -660,6 +668,9 @@ class Grammar:
             ident = self.lexical_analyser.acceptIdentifier()
 
             if self.lexical_analyser.isCharacter("("):            # Appel fonct
+                var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
+                print(var_name)
+                var_static_addr = self.id_table.tbl[var_name].address
                 self.comp.add_instruction('reserverBloc')
                 self.lexical_analyser.acceptCharacter("(")
 
@@ -668,6 +679,7 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
+                self.comp.add_trastat_instruction(var_static_addr)
 
                 self.logger.debug("Call to function: " + ident)
 
@@ -676,8 +688,13 @@ class Grammar:
 
                 var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
                 var_static_addr = self.id_table.tbl[var_name].address
-
-                self.comp.add_instruction('empiler', var_static_addr) #TODO: I am not sure that is this correct. Cf the two lines above.
+                var_scope = self.id_table.tbl[var_name].scope
+                if var_scope == "parameter":
+                    self.comp.add_instruction('empilerParam', var_static_addr)
+                elif var_scope == "local":
+                    self.comp.add_instruction('empilerAd', var_static_addr)
+                else :
+                    self.comp.add_instruction('empiler', var_static_addr)
                 self.comp.add_instruction('valeurPile')
         else:
             self.logger.error("Unknown Value!")
@@ -821,6 +838,7 @@ class Grammar:
         self.logger.debug("parsing return instruction")
         self.lexical_analyser.acceptKeyword("return")
         self.expression()
+        self.comp.add_instruction('retourFonct')
 
     #===Compile
     def compile(self, show_ident_table: bool = False) -> str:
