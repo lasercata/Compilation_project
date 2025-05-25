@@ -148,9 +148,9 @@ class Grammar:
             self.comp.add_instruction('tra', None)
             tra_addr = self.comp.get_current_address()
             self.listeDeclaOp()
+            self.comp.set_instruction_args(tra_addr, (self.comp.get_current_address() + 2,))
 
             if not self.lexical_analyser.isKeyword("begin"):
-                self.comp.set_instruction_args(tra_addr, (self.comp.get_current_address() + 1,))
                 self.listeDeclaVar()
             
         else:
