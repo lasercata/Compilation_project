@@ -196,8 +196,6 @@ class Grammar:
         self.logger.debug("Name of procedure : " + ident)
         carac = IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)
         self.id_table.addIdentifier(ident, carac) #Ajout dans la table des identificateurs
-        print(1)
-        self.id_table.printTable()
                 
         self.current_scope = "parameter" #procedure's parameters' scope
         self.partieFormelle()
@@ -224,8 +222,6 @@ class Grammar:
         carac = IdentifierCarac(IdentifierType.FUNCTION, ident, self.current_scope)
         carac.adress = entry_address
         self.id_table.addIdentifier(ident, carac) #Add in the identifier table
-        print(2)
-        self.id_table.printTable()
         
         self.current_scope = "parameter" #function's parameters' scope
         self.partieFormelle()
@@ -401,8 +397,6 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
         self.logger.debug("identifier found: "+str(ident))
         self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, self.current_scope)) #Ajout dans la table des identificateurs
-        print(3)
-        self.id_table.printTable()
         
         self.comp.new_identifier()
 
@@ -420,8 +414,6 @@ class Grammar:
         self.logger.debug("identifier found: " + str(param_ident))
         self.current_scope = "parameter" #procedure's parameters' scope
         self.id_table.addIdentifier(param_ident, IdentifierCarac("NONE", param_ident, self.current_scope)) #add in the identifier table
-        print(4)
-        self.id_table.printTable()
         
         if self.lexical_analyser.isCharacter(","):
             self.lexical_analyser.acceptCharacter(",")
