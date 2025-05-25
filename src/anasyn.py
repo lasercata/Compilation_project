@@ -192,7 +192,9 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
         
         self.current_function_name = ident #Set the current function name for later use
-        
+
+        self.comp.add_trastat_adress(ident,self.comp.get_current_address()+2)
+
         self.logger.debug("Name of procedure : " + ident)
         carac = IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)
         self.id_table.addIdentifier(ident, carac) #Ajout dans la table des identificateurs
@@ -216,7 +218,7 @@ class Grammar:
         
         self.lexical_analyser.acceptKeyword("function")
         ident = self.lexical_analyser.acceptIdentifier()
-
+        self.comp.add_trastat_adress(ident, self.comp.get_current_address() + 2)
         self.logger.debug("Name of function : " + ident)
         self.current_scope = "global" #Function's scope
         carac = IdentifierCarac(IdentifierType.FUNCTION, ident, self.current_scope)
@@ -456,7 +458,7 @@ class Grammar:
             self.retour()
 
         elif self.lexical_analyser.isIdentifier():
-            self.ident = self.lexical_analyser.acceptIdentifier()
+            ident = self.lexical_analyser.acceptIdentifier()
 
             if self.lexical_analyser.isSymbol(":="):                
                 # affectation
@@ -488,8 +490,6 @@ class Grammar:
                 self.logger.debug("parsed affectation")
 
             elif self.lexical_analyser.isCharacter("("):
-                var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
-                var_static_addr = self.id_table.tbl[var_name].address
                 self.comp.add_instruction('reserverBloc')
                 self.lexical_analyser.acceptCharacter("(")
                 
@@ -498,8 +498,8 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
-                val_param = self.comp.add_trastat_instruction(var_static_addr)
-                self.comp.add_instruction_to_modify(len(self.comp.instructions)-1,var_name,val_param)
+                address_proc_func = self.comp.traStat_memory[ident]
+                self.comp.add_trastat_instruction(address_proc_func)
 
             else:
                 self.logger.error("Expecting procedure call or affectation!")
@@ -734,9 +734,6 @@ class Grammar:
             ident = self.lexical_analyser.acceptIdentifier()
 
             if self.lexical_analyser.isCharacter("("):            # Appel fonct
-                var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
-                print(var_name)
-                var_static_addr = self.id_table.tbl[var_name].address
                 self.comp.add_instruction('reserverBloc')
                 self.lexical_analyser.acceptCharacter("(")
 
@@ -745,8 +742,8 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
-                val_param = self.comp.add_trastat_instruction(var_static_addr)
-                self.comp.add_instruction_to_modify(len(self.comp.instructions) - 1, var_name, val_param)
+                address_proc_func = self.comp.traStat_memory[ident]
+                self.comp.add_trastat_instruction(address_proc_func)
 
                 self.logger.debug("Call to function: " + ident)
 
@@ -938,9 +935,6 @@ class Grammar:
         try:
             self.lexical_analyser.init_analyser()
             self.program()
-            for modification in self.comp.instr_to_modify:
-                var_static_addr = self.id_table.tbl[modification[1]].address
-                self.comp.set_instruction_args(modification[0], (var_static_addr,modification[2]))
 
             if show_ident_table:
                 print("------ IDENTIFIER TABLE ------")

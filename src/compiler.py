@@ -15,7 +15,7 @@ class Compiler:
     
     def __init__(self):
         self.instructions = []
-        self.instr_to_modify = []
+        self.traStat_memory = {}
         self.identifiers_count = 0
         self.parameters_count = 0
         
@@ -37,8 +37,8 @@ class Compiler:
     
         self.instructions.append([name, args])
 
-    def add_instruction_to_modify(self, addr: int, variable_name : str,args):
-        self.instr_to_modify.append([addr, variable_name,args])
+    def add_trastat_adress(self, name, ad_p):
+        self.traStat_memory[name] = ad_p
 
     def get_current_address(self) -> int:
         '''Get the current address of the instruction list.'''
