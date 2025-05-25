@@ -234,7 +234,6 @@ class Grammar:
         entry_addr = self.comp.get_current_address() + 1 #Address of the function entry point
         self.corpsFonct()
 
-        self.comp.add_instruction('retourFonct')
         self.current_scope = "global" #reset the scope to global for the main program
 
     def corpsProc(self):
@@ -480,7 +479,7 @@ class Grammar:
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
                 elif var_scope == "local":
-                    self.comp.add_instruction('empiler', var_static_addr)
+                    self.comp.add_instruction('empilerAd', var_static_addr)
                 else:
                     self.comp.add_instruction('empiler', var_static_addr)
 
@@ -499,7 +498,8 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
-                self.comp.add_trastat_instruction(var_static_addr)  # TODO: calculate ad(p) and put its value instead !
+                val_param = self.comp.add_trastat_instruction(var_static_addr)
+                self.comp.add_instruction_to_modify(len(self.comp.instructions)-1,var_name,val_param)
 
             else:
                 self.logger.error("Expecting procedure call or affectation!")
@@ -745,7 +745,8 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
-                self.comp.add_trastat_instruction(var_static_addr)
+                val_param = self.comp.add_trastat_instruction(var_static_addr)
+                self.comp.add_instruction_to_modify(len(self.comp.instructions) - 1, var_name, val_param)
 
                 self.logger.debug("Call to function: " + ident)
 
@@ -759,7 +760,7 @@ class Grammar:
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
                 elif var_scope == "local":
-                    self.comp.add_instruction('empiler', var_static_addr)
+                    self.comp.add_instruction('empilerAd', var_static_addr)
                 else :
                     self.comp.add_instruction('empiler', var_static_addr)
                 self.comp.add_instruction('valeurPile')
@@ -937,6 +938,9 @@ class Grammar:
         try:
             self.lexical_analyser.init_analyser()
             self.program()
+            for modification in self.comp.instr_to_modify:
+                var_static_addr = self.id_table.tbl[modification[1]].address
+                self.comp.set_instruction_args(modification[0], (var_static_addr,modification[2]))
 
             if show_ident_table:
                 print("------ IDENTIFIER TABLE ------")
