@@ -15,6 +15,7 @@ class Compiler:
     
     def __init__(self):
         self.instructions = []
+        self.instr_to_modify = []
         self.identifiers_count = 0
         self.parameters_count = 0
         
@@ -35,7 +36,10 @@ class Compiler:
             raise ValueError(f'Compiler: add_instruction: name "{name}" is not a known instruction')
     
         self.instructions.append([name, args])
-    
+
+    def add_instruction_to_modify(self, addr: int, variable_name : str,args):
+        self.instr_to_modify.append([addr, variable_name,args])
+
     def get_current_address(self) -> int:
         '''Get the current address of the instruction list.'''
 
@@ -113,5 +117,6 @@ class Compiler:
         '''
 
         self.add_instruction('traStat', ad_p,self.parameters_count)
+        val_return = self.parameters_count
         self.parameters_count = 0
-
+        return val_return

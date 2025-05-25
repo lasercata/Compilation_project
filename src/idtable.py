@@ -77,36 +77,53 @@ class IdentifierTable:
         """this method is used to initialize a table for identifiers."""
 
         self.tbl: Dict[str, IdentifierCarac] = {} #initializing the table as a dictionary containing the identifiers as keys and their characteristics as values.
-        self.adressCounter = 0 #this variable is used to keep track of the address of the identifiers in memory.
-
-    def getAdressCounter(self):
-        """this method is used to get the address counter."""
-
-        return self.adressCounter
-
-    def setAdressCounter(self, adressCounter):
-        """this method is used to set the address counter."""
-
-        self.adressCounter = adressCounter
-    
+        self.addr_global = 0  # address for global variables
+        self.addr_param = 0   # address for parameters
+        self.addr_local = 0   # address for local variables
+        
+        
     def addIdentifier(self, nom: str, carac: IdentifierCarac):
         """Add an identifier to the table, with automatic address assignment"""
 
         if nom in self.tbl:
-            raise Exception(f"Identifier '{nom}' already exists.")
+            raise Exception(f"Identifier '{nom}' already exists")
 
-        # Automatic address assignment
-        if carac.address is None:
-            if not hasattr(self, "address_counters"):
-                self.address_counters = {}
+        if carac.scope == "global":
+            if carac.type in [IdentifierType.PROCEDURE, IdentifierType.FUNCTION]:
+                if carac.name == "pp":
+                    carac.address = None  # main program does not have an address
+                else:
+                    carac.address = None  # assigned later by the compiler
+            else:
+                carac.address = self.addr_global
+                self.addr_global += 1
 
-            if carac.scope not in self.address_counters:
-                self.address_counters[carac.scope] = 0
+        elif carac.scope == "parameter":
+            carac.address = self.addr_param
+            self.addr_param += 1
 
-            carac.address = self.address_counters[carac.scope]
-            self.address_counters[carac.scope] += 1
+        elif carac.scope == "local":
+            carac.address = self.addr_local
+            self.addr_local += 1
 
-        self.tbl[nom] = carac
+        self.tbl[nom] = carac  
+        
+
+    
+    def assign_procedure_address(self, nom: str):
+        """this method is used to assign an address to a procedure after its declaration."""
+        if nom not in self.tbl:
+            raise Exception(f"Identifier '{nom}' not found in the table.")
+        
+        max_addr = max(
+            (c.address for c in self.tbl.values()
+            if c.scope == "global" and c.type not in [IdentifierType.FUNCTION, IdentifierType.PROCEDURE] and isinstance(c.address, int)),
+            default=-1
+        )
+        self.tbl[nom].address = max_addr + 1
+
+
+
 
     
     def deleteIdentifier(self, identifierName: str):

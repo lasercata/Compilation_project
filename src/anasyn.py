@@ -69,6 +69,10 @@ class Grammar:
         
         #---Set up the scope
         self.current_scope = "global"
+        
+        #---Set up the identifier        
+        self.current_function_name = None
+
 
     def create_lexical_analyser(self, src_code: str):
         '''Creates the lexical analyser.'''
@@ -108,9 +112,6 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of program : " + ident)
-        self.current_scope = "global" #Scope du programme principal
-        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)) #Ajout dans la table des identificateurs
-        self.comp.new_identifier()
         
     def  corpsProgPrinc(self):
         '''
@@ -120,6 +121,8 @@ class Grammar:
         if not self.lexical_analyser.isKeyword("begin"):
             self.logger.debug("Parsing declarations")
             self.partieDecla()
+    
+                
             self.logger.debug("End of declarations")
 
         self.lexical_analyser.acceptKeyword("begin")
@@ -130,6 +133,9 @@ class Grammar:
             self.logger.debug("End of instructions")
 
         self.lexical_analyser.acceptKeyword("end")
+        for nom, carac in self.id_table.tbl.items():
+                if carac.type in (IdentifierType.PROCEDURE, IdentifierType.FUNCTION) and carac.address is None:
+                    self.id_table.assign_procedure_address(nom)
         self.lexical_analyser.acceptFel()
         self.logger.debug("End of program")
 
@@ -146,7 +152,7 @@ class Grammar:
             if not self.lexical_analyser.isKeyword("begin"):
                 self.comp.set_instruction_args(tra_addr, (self.comp.get_current_address() + 1,))
                 self.listeDeclaVar()
-
+            
         else:
             self.listeDeclaVar()                
 
@@ -167,9 +173,13 @@ class Grammar:
         '''
 
         if self.lexical_analyser.isKeyword("procedure"):
+            self.id_table.addr_param = 0 #Reset the parameter address counter
+            self.id_table.addr_local = 0 #Reset the local address counter
             self.procedure()
 
         if self.lexical_analyser.isKeyword("function"):
+            self.id_table.addr_param = 0 #Reset the parameter address counter
+            self.id_table.addr_local = 0 #Reset the local address counter
             self.fonction()
 
     def procedure(self):
@@ -178,43 +188,53 @@ class Grammar:
         '''
 
         self.lexical_analyser.acceptKeyword("procedure")
+        self.current_scope = "global" #Procedure's scope
         ident = self.lexical_analyser.acceptIdentifier()
-
+        
+        self.current_function_name = ident #Set the current function name for later use
+        
         self.logger.debug("Name of procedure : " + ident)
-        self.current_scope = "global"
-        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)) #Ajout dans la table des identificateurs
+        carac = IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)
+        self.id_table.addIdentifier(ident, carac) #Ajout dans la table des identificateurs
+                
+        self.current_scope = "parameter" #procedure's parameters' scope
         self.partieFormelle()
 
         self.current_scope = "local" #Scope des variables locales
         self.lexical_analyser.acceptKeyword("is")
+        
         self.corpsProc()
         self.comp.add_instruction('retourProc')
+        
         self.current_scope = "global" #Scope remis à global pour le programme principal
 
     def fonction(self):
         '''
         <fonction> -> function <ident> <partieFormelle> return <type> is <corpsFonct>.
         '''
-
+        entry_address = self.comp.get_current_address() + 1
+        
         self.lexical_analyser.acceptKeyword("function")
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of function : " + ident)
-        self.current_scope = "global" #Scope de la fonction
-        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.FUNCTION, ident, self.current_scope)) #Ajout dans la table des identificateurs
+        self.current_scope = "global" #Function's scope
+        carac = IdentifierCarac(IdentifierType.FUNCTION, ident, self.current_scope)
+        carac.adress = entry_address
+        self.id_table.addIdentifier(ident, carac) #Add in the identifier table
         
-        self.current_scope = "parameter" #Scope des paramètres de la fonction
+        self.current_scope = "parameter" #function's parameters' scope
         self.partieFormelle()
 
         self.lexical_analyser.acceptKeyword("return")
         self.nnpType()
 
-        self.current_scope = "local" #Scope des variables locales
+        self.current_scope = "local" #local variables' scope
         self.lexical_analyser.acceptKeyword("is")
+        entry_addr = self.comp.get_current_address() + 1 #Address of the function entry point
         self.corpsFonct()
 
-        self.comp.add_instruction('retourFonct')
-        self.current_scope = "global" #Scope remis à global pour le programme principal
+        self.current_scope = "global" #reset the scope to global for the main program
 
     def corpsProc(self):
         '''
@@ -277,6 +297,14 @@ class Grammar:
 
         if self.lexical_analyser.isKeyword("in"):
             self.mode()
+        
+        else:
+            self.logger.debug("implicit 'in' parameter (default mode)")
+            for key, value in self.id_table.tbl.items():
+                if value.scope == "parameter" and value.type == "NONE":
+                    value.isIn = True
+                    value.isOut = False
+                    value.scope = "local"  # Comme tout paramètre 'in' par valeur
 
         self.nnpType()
 
@@ -368,7 +396,7 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
         self.logger.debug("identifier found: "+str(ident))
         self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, self.current_scope)) #Ajout dans la table des identificateurs
-
+        
         self.comp.new_identifier()
 
         if self.lexical_analyser.isCharacter(","):
@@ -380,11 +408,11 @@ class Grammar:
         TODO: description   
         '''
 
-        ident = self.lexical_analyser.acceptIdentifier()
+        param_ident = self.lexical_analyser.acceptIdentifier()
 
-        self.logger.debug("identifier found: " + str(ident))
-        self.current_scope = "parameter" #Scope de la variable du programme principal
-        self.id_table.addIdentifier(ident, IdentifierCarac("NONE", ident, self.current_scope)) #Ajout dans la table des identificateurs
+        self.logger.debug("identifier found: " + str(param_ident))
+        self.current_scope = "parameter" #procedure's parameters' scope
+        self.id_table.addIdentifier(param_ident, IdentifierCarac("NONE", param_ident, self.current_scope)) #add in the identifier table
         
         if self.lexical_analyser.isCharacter(","):
             self.lexical_analyser.acceptCharacter(",")
@@ -472,7 +500,8 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
-                self.comp.add_trastat_instruction(var_static_addr)  # TODO: calculate ad(p) and put its value instead !
+                val_param = self.comp.add_trastat_instruction(var_static_addr)
+                self.comp.add_instruction_to_modify(len(self.comp.instructions)-1,var_name,val_param)
 
             else:
                 self.logger.error("Expecting procedure call or affectation!")
@@ -718,7 +747,8 @@ class Grammar:
 
                 self.lexical_analyser.acceptCharacter(")")
                 self.logger.debug("parsed procedure call")
-                self.comp.add_trastat_instruction(var_static_addr)
+                val_param = self.comp.add_trastat_instruction(var_static_addr)
+                self.comp.add_instruction_to_modify(len(self.comp.instructions) - 1, var_name, val_param)
 
                 self.logger.debug("Call to function: " + ident)
 
@@ -910,6 +940,9 @@ class Grammar:
         try:
             self.lexical_analyser.init_analyser()
             self.program()
+            for modification in self.comp.instr_to_modify:
+                var_static_addr = self.id_table.tbl[modification[1]].address
+                self.comp.set_instruction_args(modification[0], (var_static_addr,modification[2]))
 
             if show_ident_table:
                 print("------ IDENTIFIER TABLE ------")
@@ -970,6 +1003,7 @@ def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lv
     #-Close file
     if fn_out != '':
         output_file.close()
+
 
 ########################################################################
 
