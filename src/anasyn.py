@@ -931,8 +931,6 @@ class Grammar:
             self.lexical_analyser.init_analyser()
             self.program()
 
-            show_ident_table = True
-
             if show_ident_table:
                 print("------ IDENTIFIER TABLE ------")
                 self.id_table.printTable()
