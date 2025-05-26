@@ -463,8 +463,6 @@ class Grammar:
                 var = self.id_table.tbl[var_name]
                 var_static_addr = var.address
 
-                # print(var_name + " is a " + var_scope)
-
                 var_type = var.type
                 val = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index]
 
@@ -517,42 +515,52 @@ class Grammar:
             self.lexical_analyser.acceptCharacter(",")
             self.listePe()
 
-    def expression(self):
+    def expression(self) -> str | None:
         '''
         <expression> -> <expression> or <exp1> | <exp1>.
         '''
 
         self.logger.debug("parsing expression: " + str(self.lexical_analyser.get_value()))
 
-        self.exp1()
+        ret1 = self.exp1()
 
         if self.lexical_analyser.isKeyword("or"):
             self.lexical_analyser.acceptKeyword("or")
-            self.exp1()
+            ret2 = self.exp1()
             self.comp.add_instruction("ou")
 
-    def exp1(self):
+            if ret1 == ret2:
+                return ret1
+
+        return ret1
+
+    def exp1(self) -> str | None:
         '''
         <exp1> -> <exp1> and <exp2> | <exp2>.
         '''
 
         self.logger.debug("parsing exp1")
 
-        self.exp2()
+        ret1 = self.exp2()
 
         if self.lexical_analyser.isKeyword("and"):
             self.lexical_analyser.acceptKeyword("and")
-            self.exp2()
+            ret2 = self.exp2()
             self.comp.add_instruction("et")
 
-    def exp2(self):
+            if ret1 == ret2:
+                return ret1
+
+        return ret1
+
+    def exp2(self) -> str | None:
         '''
         <exp2> -> <exp2> <opRel> <exp3> | <exp3>.
         '''
 
         self.logger.debug("parsing exp2")
 
-        self.exp3()
+        ret1 = self.exp3()
 
         if (
             self.lexical_analyser.isSymbol("<") or
@@ -561,13 +569,20 @@ class Grammar:
             self.lexical_analyser.isSymbol(">=")
         ):
             operator = self.opRel()
-            self.exp3()
+            ret2 = self.exp3()
             self.comp.add_instruction(operator)
+
+            if ret1 == ret2:
+                return ret1
 
         elif self.lexical_analyser.isSymbol("=") or self.lexical_analyser.isSymbol("/="): 
             operator = self.opRel()
-            self.exp3()
+            ret2 = self.exp3()
             self.comp.add_instruction(operator)
+
+            return IdentifierType.BOOLEAN
+
+        return ret1
 
     def opRel(self):
         '''
@@ -605,18 +620,24 @@ class Grammar:
             self.logger.error(msg)
             raise AnaSynException(msg)
 
-    def exp3(self):
+    def exp3(self) -> str | None:
         '''
         <exp3> -> <exp3> <opAd> <exp4> | <exp4>.
         '''
 
         self.logger.debug("parsing exp3")
-        self.exp4()    
+        ret1 = self.exp4()    
 
         if self.lexical_analyser.isCharacter("+") or self.lexical_analyser.isCharacter("-"):
             operator = self.opAdd()
-            self.exp4()
+            ret2 = self.exp4()
             self.comp.add_instruction(operator)
+
+            if ret1 == ret2:
+                return ret1
+
+        return ret1
+        
 
     def opAdd(self):
         '''
@@ -638,19 +659,24 @@ class Grammar:
             self.logger.error(msg)
             raise AnaSynException(msg)
 
-    def exp4(self):
+    def exp4(self) -> str | None:
         '''
         <exp4> -> <exp4> <opMult> <prim> | <prim>.
         '''
 
         self.logger.debug("parsing exp4")
 
-        self.prim()    
+        ret1 = self.prim()
 
         if self.lexical_analyser.isCharacter("*") or self.lexical_analyser.isCharacter("/"):
             operator = self.opMult()
-            self.prim()
+            ret2 = self.prim()
             self.comp.add_instruction(operator)
+
+            if ret1 == ret2:
+                return ret1
+
+        return ret1
 
     def opMult(self):
         '''
@@ -672,7 +698,7 @@ class Grammar:
             self.logger.error(msg)
             raise AnaSynException(msg)
 
-    def prim(self):
+    def prim(self) -> str | None:
         '''
         <prim> -> <opUnaire> <elemPrim> | <elemPrim>.
         '''
@@ -681,10 +707,12 @@ class Grammar:
 
         if self.lexical_analyser.isCharacter("+") or self.lexical_analyser.isCharacter("-") or self.lexical_analyser.isKeyword("not"):
             operator = self.opUnaire()
-            self.elemPrim()
+            ret = self.elemPrim()
             self.comp.add_instruction(operator)
-        else :
-            self.elemPrim()
+
+            return ret
+
+        return self.elemPrim()
 
 
     def opUnaire(self):
@@ -710,7 +738,7 @@ class Grammar:
             self.logger.error(msg)
             raise AnaSynException(msg)
 
-    def elemPrim(self):
+    def elemPrim(self) -> str | None:
         '''
         <elemPrim> -> <valeur> | ( <expression> ) | <ident> | <appelFonct>
 
@@ -721,11 +749,13 @@ class Grammar:
 
         if self.lexical_analyser.isCharacter("("):
             self.lexical_analyser.acceptCharacter("(")
-            self.expression()
+            ret = self.expression()
             self.lexical_analyser.acceptCharacter(")")
 
+            return ret
+
         elif self.lexical_analyser.isInteger() or self.lexical_analyser.isKeyword("true") or self.lexical_analyser.isKeyword("false"):
-            self.valeur()
+            return self.valeur()
 
         elif self.lexical_analyser.isIdentifier():
             ident = self.lexical_analyser.acceptIdentifier()
@@ -748,8 +778,9 @@ class Grammar:
                 self.logger.debug("Use of an identifier as an expression: " + ident)
 
                 var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
-                var_static_addr = self.id_table.tbl[var_name].address
-                var_scope = self.id_table.tbl[var_name].scope
+                var = self.id_table.tbl[var_name]
+                var_static_addr = var.address
+                var_scope = var.scope
 
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
@@ -757,12 +788,15 @@ class Grammar:
                     self.comp.add_instruction('empilerAd', var_static_addr)
                 else :
                     self.comp.add_instruction('empiler', var_static_addr)
+
                 self.comp.add_instruction('valeurPile')
+
+                return var.type
         else:
             self.logger.error("Unknown Value!")
             raise AnaSynException("Unknown Value!")
 
-    def valeur(self):
+    def valeur(self) -> str:
         '''
         <valeur> -> <entier> | <valBool>.
         '''
@@ -771,10 +805,12 @@ class Grammar:
             entier = self.lexical_analyser.acceptInteger()
             self.logger.debug("integer value: " + str(entier))
             self.comp.add_instruction("empiler", entier)
+
             return "integer"
 
         elif self.lexical_analyser.isKeyword("true") or self.lexical_analyser.isKeyword("false"):
             vtype = self.valBool()
+
             return vtype
 
         else:
@@ -824,15 +860,16 @@ class Grammar:
             self.lexical_analyser.acceptKeyword("put")
 
             self.lexical_analyser.acceptCharacter("(")
-            self.expression()
+            # expr_type = self.expression()
+            expr_type = self.exp3()
             self.lexical_analyser.acceptCharacter(")")
 
             self.comp.add_instruction('put')
             self.logger.debug("Call to put")
 
-            #TODO: semantic error if expression is not an int
-            # if self.id_table.tbl[ident].type != IdentifierType.INTEGER:
-            #     raise SemanticException('get takes an integer')
+            # if expr_type != IdentifierType.INTEGER:
+            if expr_type != IdentifierType.INTEGER and expr_type is not None:
+                raise SemanticException('put takes an integer')
 
         else:
             self.logger.error("Unknown E/S instruction!")
@@ -848,7 +885,10 @@ class Grammar:
 
         # Compiling the beginning of the while loop (condition)
         ad1 = self.comp.get_current_address() + 1 # ad1
-        self.expression() # compile condition
+        expr_type = self.expression() # compile condition
+
+        if expr_type != IdentifierType.BOOLEAN:
+            raise SemanticException('expression in `while`: does not parse to boolean')
         
         self.lexical_analyser.acceptKeyword("loop")
         
@@ -874,7 +914,10 @@ class Grammar:
         self.logger.debug("parsing if: ")
         self.lexical_analyser.acceptKeyword("if")
 
-        self.expression()
+        expr_type = self.expression()
+
+        if expr_type != IdentifierType.BOOLEAN:
+            raise SemanticException('expression in `if`: does not parse to boolean')
         
         # Adding tze jump, with a placeholder for the address
         self.comp.add_instruction('tze', None)
