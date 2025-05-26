@@ -605,18 +605,24 @@ class Grammar:
             self.logger.error(msg)
             raise AnaSynException(msg)
 
-    def exp3(self):
+    def exp3(self) -> str | None:
         '''
         <exp3> -> <exp3> <opAd> <exp4> | <exp4>.
         '''
 
         self.logger.debug("parsing exp3")
-        self.exp4()    
+        ret1 = self.exp4()    
 
         if self.lexical_analyser.isCharacter("+") or self.lexical_analyser.isCharacter("-"):
             operator = self.opAdd()
-            self.exp4()
+            ret2 = self.exp4()
             self.comp.add_instruction(operator)
+
+            if ret1 is not None and ret2 is not None:
+                return ret1 #TODO: it may not be the the same as ret2 ?
+
+        else:
+            return ret1
 
     def opAdd(self):
         '''
@@ -638,19 +644,25 @@ class Grammar:
             self.logger.error(msg)
             raise AnaSynException(msg)
 
-    def exp4(self):
+    def exp4(self) -> str | None:
         '''
         <exp4> -> <exp4> <opMult> <prim> | <prim>.
         '''
 
         self.logger.debug("parsing exp4")
 
-        self.prim()    
+        ret1 = self.prim()    
 
         if self.lexical_analyser.isCharacter("*") or self.lexical_analyser.isCharacter("/"):
             operator = self.opMult()
-            self.prim()
+            ret2 = self.prim()
             self.comp.add_instruction(operator)
+
+            if ret1 is not None and ret2 is not None:
+                return ret1 #TODO: it may not be the the same as ret2 ?
+
+        else:
+            return ret1
 
     def opMult(self):
         '''
@@ -672,7 +684,7 @@ class Grammar:
             self.logger.error(msg)
             raise AnaSynException(msg)
 
-    def prim(self):
+    def prim(self) -> str | None:
         '''
         <prim> -> <opUnaire> <elemPrim> | <elemPrim>.
         '''
@@ -681,10 +693,13 @@ class Grammar:
 
         if self.lexical_analyser.isCharacter("+") or self.lexical_analyser.isCharacter("-") or self.lexical_analyser.isKeyword("not"):
             operator = self.opUnaire()
-            self.elemPrim()
+            ret = self.elemPrim()
             self.comp.add_instruction(operator)
+
+            return ret
+
         else :
-            self.elemPrim()
+            return self.elemPrim()
 
 
     def opUnaire(self):
@@ -710,7 +725,7 @@ class Grammar:
             self.logger.error(msg)
             raise AnaSynException(msg)
 
-    def elemPrim(self):
+    def elemPrim(self) -> str | None:
         '''
         <elemPrim> -> <valeur> | ( <expression> ) | <ident> | <appelFonct>
 
@@ -725,7 +740,7 @@ class Grammar:
             self.lexical_analyser.acceptCharacter(")")
 
         elif self.lexical_analyser.isInteger() or self.lexical_analyser.isKeyword("true") or self.lexical_analyser.isKeyword("false"):
-            self.valeur()
+            return self.valeur()
 
         elif self.lexical_analyser.isIdentifier():
             ident = self.lexical_analyser.acceptIdentifier()
@@ -748,8 +763,9 @@ class Grammar:
                 self.logger.debug("Use of an identifier as an expression: " + ident)
 
                 var_name = self.lexical_analyser.lexical_units[self.lexical_analyser.lexical_unit_index - 1].value
-                var_static_addr = self.id_table.tbl[var_name].address
-                var_scope = self.id_table.tbl[var_name].scope
+                var = self.id_table.tbl[var_name]
+                var_static_addr = var.address
+                var_scope = var.scope
 
                 if var_scope == "parameter":
                     self.comp.add_instruction('empilerParam', var_static_addr)
@@ -757,7 +773,10 @@ class Grammar:
                     self.comp.add_instruction('empilerAd', var_static_addr)
                 else :
                     self.comp.add_instruction('empiler', var_static_addr)
+
                 self.comp.add_instruction('valeurPile')
+
+                return var.type
         else:
             self.logger.error("Unknown Value!")
             raise AnaSynException("Unknown Value!")
@@ -824,15 +843,16 @@ class Grammar:
             self.lexical_analyser.acceptKeyword("put")
 
             self.lexical_analyser.acceptCharacter("(")
-            self.expression()
+            # self.expression()
+            expr_type = self.exp3()
             self.lexical_analyser.acceptCharacter(")")
 
             self.comp.add_instruction('put')
             self.logger.debug("Call to put")
 
-            #TODO: semantic error if expression is not an int
-            # if self.id_table.tbl[ident].type != IdentifierType.INTEGER:
-            #     raise SemanticException('get takes an integer')
+            print(expr_type, IdentifierType.INTEGER)
+            if expr_type != IdentifierType.INTEGER:
+                raise SemanticException('put takes an integer')
 
         else:
             self.logger.error("Unknown E/S instruction!")
