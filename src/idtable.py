@@ -80,6 +80,7 @@ class IdentifierTable:
         self.addr_global = 0  # address for global variables
         self.addr_param = 0   # address for parameters
         self.addr_local = 0   # address for local variables
+        self.addr_proc_func = 0
         
         
     def addIdentifier(self, nom: str, carac: IdentifierCarac):
@@ -90,10 +91,8 @@ class IdentifierTable:
 
         if carac.scope == "global":
             if carac.type in [IdentifierType.PROCEDURE, IdentifierType.FUNCTION]:
-                if carac.name == "pp":
-                    carac.address = None  # main program does not have an address
-                else:
-                    carac.address = None  # assigned later by the compiler
+                carac.address = self.addr_proc_func
+                self.addr_proc_func += 1
             else:
                 carac.address = self.addr_global
                 self.addr_global += 1

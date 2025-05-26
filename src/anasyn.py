@@ -69,9 +69,6 @@ class Grammar:
         
         #---Set up the scope
         self.current_scope = "global"
-        
-        #---Set up the identifier        
-        self.current_function_name = None
 
 
     def create_lexical_analyser(self, src_code: str):
@@ -112,7 +109,14 @@ class Grammar:
         ident = self.lexical_analyser.acceptIdentifier()
 
         self.logger.debug("Name of program : " + ident)
-        
+
+        self.current_scope = "global"  # Scope du programme principal
+
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident,
+                                                           self.current_scope))  # Ajout dans la table des identificateurs
+
+        self.comp.new_identifier()
+
     def  corpsProgPrinc(self):
         '''
         <corpsProgPrinc> -> <partieDecla> begin <suiteInstr> end. | begin <suiteInstr> end.
@@ -133,9 +137,6 @@ class Grammar:
             self.logger.debug("End of instructions")
 
         self.lexical_analyser.acceptKeyword("end")
-        for nom, carac in self.id_table.tbl.items():
-                if carac.type in (IdentifierType.PROCEDURE, IdentifierType.FUNCTION) and carac.address is None:
-                    self.id_table.assign_procedure_address(nom)
         self.lexical_analyser.acceptFel()
         self.logger.debug("End of program")
 
@@ -173,13 +174,9 @@ class Grammar:
         '''
 
         if self.lexical_analyser.isKeyword("procedure"):
-            self.id_table.addr_param = 0 #Reset the parameter address counter
-            self.id_table.addr_local = 0 #Reset the local address counter
             self.procedure()
 
         if self.lexical_analyser.isKeyword("function"):
-            self.id_table.addr_param = 0 #Reset the parameter address counter
-            self.id_table.addr_local = 0 #Reset the local address counter
             self.fonction()
 
     def procedure(self):
@@ -190,16 +187,16 @@ class Grammar:
         self.lexical_analyser.acceptKeyword("procedure")
         self.current_scope = "global" #Procedure's scope
         ident = self.lexical_analyser.acceptIdentifier()
-        
-        self.current_function_name = ident #Set the current function name for later use
 
         self.comp.add_trastat_adress(ident,self.comp.get_current_address()+2)
 
         self.logger.debug("Name of procedure : " + ident)
-        carac = IdentifierCarac(IdentifierType.PROCEDURE, ident, self.current_scope)
-        self.id_table.addIdentifier(ident, carac) #Ajout dans la table des identificateurs
-                
-        self.current_scope = "parameter" #procedure's parameters' scope
+
+        self.current_scope = "global"
+
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.PROCEDURE, ident,self.current_scope))  # Ajout dans la table des identificateurs
+
+        self.current_scope = "parameter"  # procedure's parameters' scope
         self.partieFormelle()
 
         self.current_scope = "local" #Scope des variables locales
@@ -214,16 +211,15 @@ class Grammar:
         '''
         <fonction> -> function <ident> <partieFormelle> return <type> is <corpsFonct>.
         '''
-        entry_address = self.comp.get_current_address() + 1
-        
+
         self.lexical_analyser.acceptKeyword("function")
         ident = self.lexical_analyser.acceptIdentifier()
         self.comp.add_trastat_adress(ident, self.comp.get_current_address() + 2)
         self.logger.debug("Name of function : " + ident)
-        self.current_scope = "global" #Function's scope
-        carac = IdentifierCarac(IdentifierType.FUNCTION, ident, self.current_scope)
-        carac.adress = entry_address
-        self.id_table.addIdentifier(ident, carac) #Add in the identifier table
+
+        self.current_scope = "global"  # Scope de la fonction
+
+        self.id_table.addIdentifier(ident, IdentifierCarac(IdentifierType.FUNCTION, ident, self.current_scope))  # Ajout dans la table des identificateurs
         
         self.current_scope = "parameter" #function's parameters' scope
         self.partieFormelle()
@@ -233,7 +229,6 @@ class Grammar:
 
         self.current_scope = "local" #local variables' scope
         self.lexical_analyser.acceptKeyword("is")
-        entry_addr = self.comp.get_current_address() + 1 #Address of the function entry point
         self.corpsFonct()
 
         self.current_scope = "global" #reset the scope to global for the main program
@@ -935,6 +930,8 @@ class Grammar:
         try:
             self.lexical_analyser.init_analyser()
             self.program()
+
+            show_ident_table = True
 
             if show_ident_table:
                 print("------ IDENTIFIER TABLE ------")
