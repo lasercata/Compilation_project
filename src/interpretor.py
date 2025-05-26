@@ -44,13 +44,8 @@ class VM:
         """Initialises the variables of the program.
         """
 
-        # self.stack = []
         self.stack = Stack()
         self.heap = Stack()
-        self.dictVariable = {}
-
-        # self.ip = -1 # The pointer to the summit of the stack. Increment when adding element.
-        # self.ipTas = -1 # The pointer to the summit of the heap (used as a stack). Decrement when adding element.
 
         self.base = 0
 
