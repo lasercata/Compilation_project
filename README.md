@@ -6,7 +6,53 @@ A simple tool to **analyze**, **compile**, and **run** NNP programs.
 
 ## 📁 Project Structure
 
-> **TODO:** Add file tree here
+```
+.
+├── main.py
+├── README.md
+│
+├── Subject/
+│   └── Sujet_Projet_Compilation2024.pdf
+│
+├── Report/
+│   ├── Compilation_project_report.tex
+│   ├── data/
+│   ├── pics/
+│   └── style/
+│
+├── src/
+│   ├── analex.py
+│   ├── anasyn.py
+│   ├── compiler.py
+│   ├── idtable.py
+│   ├── interpretor.py
+│   ├── parser_ui.py
+│   └── utils.py
+│
+└── tests/
+    ├── nna/
+    │   ├── correct1.nno
+    │   ├── ...
+    │   ├── correct4.nno
+    │   ├── error1.nno
+    │   ├── ...
+    │   ├── error7.nno
+    │   │
+    │   └── expected/
+    │       ├── correct1.nno.expected
+    │       ├── ...
+    │       └── correct4.nno.expected
+    │
+    └── nnp/
+        ├── correct1.nno
+        ├── ...
+        ├── correct5.nno
+        │
+        └── expected/
+            ├── correct1.nno.expected
+            ├── ...
+            └── correct4.nno.expected
+```
 
 ---
 
