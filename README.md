@@ -2,6 +2,8 @@
 
 A simple tool to **analyze**, **compile**, and **run** NNP programs.
 
+[![Python tests](https://github.com/lasercata/Compilation_project/actions/workflows/python-tests.yml/badge.svg)](https://github.com/lasercata/Compilation_project/actions/workflows/python-tests.yml)
+
 ---
 
 ## 📁 Project Structure
