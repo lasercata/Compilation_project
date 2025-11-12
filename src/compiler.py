@@ -16,7 +16,7 @@ class Compiler:
     def __init__(self):
         self.instructions = []
         self.traStat_memory = {}
-        self.identifiers_count = 0
+        self.identifiers_count = -1
         self.parameters_count = 0
         
     ################################################################################
