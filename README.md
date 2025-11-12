@@ -29,7 +29,7 @@ A simple tool to **analyze**, **compile**, and **run** NNP programs.
 │   ├── parser_ui.py
 │   └── utils.py
 │
-└── tests/
+└── nn_programs/
     ├── nna/
     │   ├── correct1.nno
     │   ├── ...
@@ -107,9 +107,9 @@ options:
 
 ```bash
 ./main.py c -h
-./main.py c tests/nna/correct1.nno -o correct1.obj
+./main.py c nn_programs/nna/correct1.nno -o correct1.obj
 ./main.py r correct1.obj
-./main.py r tests/nna/correct1.nno -c
+./main.py r nn_programs/nna/correct1.nno -c
 ```
 
 ---
