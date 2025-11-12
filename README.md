@@ -113,3 +113,16 @@ options:
 ```
 
 ---
+
+### Run tests
+To run all the tests:
+```
+python -m pytest
+```
+
+To have the details:
+```
+python -m pytest -vv
+```
+
+---

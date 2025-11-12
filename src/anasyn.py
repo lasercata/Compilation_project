@@ -991,7 +991,7 @@ class Grammar:
 
 
 ########################################################################
-def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lvl) -> str:
+def main_anasyn(file_content: str, fn_out: str = '', show_ident_table: bool = False, debug_lvl=logging.INFO) -> str:
     '''
     Main function for the syntax analysis, and generation of the compiled instructions.
 
