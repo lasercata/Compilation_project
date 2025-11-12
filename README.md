@@ -119,12 +119,12 @@ options:
 ### Run tests
 To run all the tests:
 ```
-python -m pytest
+pytest
 ```
 
 To have the details:
 ```
-python -m pytest -vv
+pytest -vv
 ```
 
 ---
