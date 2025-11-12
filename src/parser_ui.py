@@ -49,9 +49,9 @@ class ParserUi:
         #---Init
         examples = 'Examples :'
         examples += '\n\t./main.py c -h'
-        examples += '\n\t./main.py c tests/nna/correct1.nno -o correct1.obj'
+        examples += '\n\t./main.py c nn_programs/nna/correct1.nno -o correct1.obj'
         examples += '\n\t./main.py r correct1.obj'
-        examples += '\n\t./main.py r tests/nna/correct1.nno -c'
+        examples += '\n\t./main.py r nn_programs/nna/correct1.nno -c'
 
         self.parser = argparse.ArgumentParser(
             # prog='anasyn',
@@ -190,7 +190,17 @@ class ParserUi:
 
         src_code = get_file_content(args.inputfile[0], self.parser_c)
 
-        main_anasyn(src_code, args.outputfile, args.show_ident_table, args.debug)
+        try:
+            main_anasyn(src_code, args.outputfile, args.show_ident_table, args.debug)
+
+        except SyntaxError as err:
+            print(f'Syntax error: {err}')
+
+        except FileNotFoundError:
+            print("Error: can't open output file!")
+
+        except RuntimeError as err:
+            print(f'Error: {err}')
 
     def parse_run(self, args):
         '''Parse the arguments for the `compile` mode'''
@@ -202,6 +212,7 @@ class ParserUi:
             try:
                 instructions = G.compile()
                 print(instructions)
+
             except SyntaxError as err:
                 # self.parser_r.error('syntax error: ' + str(err))
                 print('Syntax error: ' + str(err))

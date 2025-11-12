@@ -970,6 +970,9 @@ class Grammar:
 
         Args:
             :show_ident_table: if True, prints the identifier table.
+
+        Output:
+            The compiled instructions
         '''
 
         try:
@@ -988,53 +991,52 @@ class Grammar:
 
 
 ########################################################################
-def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lvl):
+def main_anasyn(file_content: str, fn_out: str, show_ident_table: bool, debug_lvl) -> str:
     '''
-    TODO: Docstring for main_anasyn.
+    Main function for the syntax analysis, and generation of the compiled instructions.
 
-    - file_content     : the content of the file (the NNP program) ;
-    - fn_out           : the name of the potential output file. If "", prints to stdout instead ;
-    - show_ident_table : if true, displays the ident table ;
-    - debug_lvl        : indicates the logging level.
+    In:
+        - file_content:     the content of the file (the NNP program) ;
+        - fn_out:           the name of the potential output file. If "", prints to stdout instead ;
+        - show_ident_table: if true, displays the ident table ;
+        - debug_lvl:        indicates the logging level.
+
+    Out:
+        The generated compiled instructions.
+
+    Throws:
+        SyntaxError       if there is a syntax error
+        FileNotFoundError if there is a problem to open the output file
+        RuntimeError      if no instructions are generated
     '''
 
     #---Run the analysis
     G = Grammar(file_content, debug_lvl)
 
-    try:
-        instructions_str = G.compile(show_ident_table)
+    instructions_str = G.compile(show_ident_table)
 
-    except SyntaxError as err:
-        print(f'Syntax error: {err}')
-        return
+    if instructions_str == '':
+        raise RuntimeError('No instruction generated!')
 
     #---Write to file / stdout
     #-Select file or stdout
     if fn_out != '':
-        try:
-            output_file = open(fn_out, 'w')
-
-        except:
-            print("Error: can't open output file!")
-            return
+        output_file = open(fn_out, 'w')
 
     else:
         output_file = sys.stdout
 
     #-Write
-    if instructions_str != '':
-        output_file.write(instructions_str)
+    output_file.write(instructions_str)
 
-        if debug_lvl == logging.DEBUG:
-            print(f'Output to file: "{fn_out}"')
-
-    else:
-        if debug_lvl == logging.DEBUG:
-            print('No instruction generated!')
+    if debug_lvl == logging.DEBUG:
+        print(f'Output to file: "{fn_out}"')
             
     #-Close file
     if fn_out != '':
         output_file.close()
+
+    return instructions_str
 
 
 ########################################################################
